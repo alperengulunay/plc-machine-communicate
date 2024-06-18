@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="ernamas_dijitalModelStoreContainer" CdmEntityContainer="ernamas_dijitalEntities">
+    <EntitySetMapping Name="MachineChangeLogs">
+      <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineChangeLogs">
+        <MappingFragment StoreEntitySet="MachineChangeLogs">
+          <ScalarProperty Name="ChangeLogID" ColumnName="ChangeLogID" />
+          <ScalarProperty Name="MachineID" ColumnName="MachineID" />
+          <ScalarProperty Name="Timestamp" ColumnName="Timestamp" />
+          <ScalarProperty Name="PreviousValue" ColumnName="PreviousValue" />
+          <ScalarProperty Name="ChangeValue" ColumnName="ChangeValue" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="MachineCurrentStatus">
+      <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineCurrentStatus">
+        <MappingFragment StoreEntitySet="MachineCurrentStatus">
+          <ScalarProperty Name="MachineQueueNumber" ColumnName="MachineQueueNumber" />
+          <ScalarProperty Name="CurrentDailyProduction" ColumnName="CurrentDailyProduction" />
+          <ScalarProperty Name="MachineCurrentStatusID" ColumnName="MachineCurrentStatusID" />
+          <ScalarProperty Name="MachineID" ColumnName="MachineID" />
+          <ScalarProperty Name="Timestamp" ColumnName="Timestamp" />
+          <ScalarProperty Name="StatusTypeID" ColumnName="StatusTypeID" />
+          <ScalarProperty Name="CycleTime" ColumnName="CycleTime" />
+          <ScalarProperty Name="AverageCycleTime" ColumnName="AverageCycleTime" />
+          <ScalarProperty Name="ProducedItems" ColumnName="ProducedItems" />
+          <ScalarProperty Name="OKProductCount" ColumnName="OKProductCount" />
+          <ScalarProperty Name="NGProductCount" ColumnName="NGProductCount" />
+          <ScalarProperty Name="OKRatio" ColumnName="OKRatio" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="MachineDowntimeReports">
+      <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineDowntimeReports">
+        <MappingFragment StoreEntitySet="MachineDowntimeReports">
+          <ScalarProperty Name="MachineDowntimeReportID" ColumnName="MachineDowntimeReportID" />
+          <ScalarProperty Name="DownTimeDate" ColumnName="DownTimeDate" />
+          <ScalarProperty Name="MachineID" ColumnName="MachineID" />
+          <ScalarProperty Name="FaultInfo" ColumnName="FaultInfo" />
+          <ScalarProperty Name="SolutionInfo" ColumnName="SolutionInfo" />
+          <ScalarProperty Name="TimeForSolving" ColumnName="TimeForSolving" />
+          <ScalarProperty Name="Frequancy" ColumnName="Frequancy" />
+          <ScalarProperty Name="TotalTime" ColumnName="TotalTime" />
+          <ScalarProperty Name="employeeId" ColumnName="employeeId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="MachineFaultTypes">
+      <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineFaultTypes">
+        <MappingFragment StoreEntitySet="MachineFaultTypes">
+          <ScalarProperty Name="MachineFaultTypeID" ColumnName="MachineFaultTypeID" />
+          <ScalarProperty Name="FaultTypeName" ColumnName="FaultTypeName" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="MachineHistoryStatus">
+      <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineHistoryStatus">
+        <MappingFragment StoreEntitySet="MachineHistoryStatus">
+          <ScalarProperty Name="CycleTimeFormula" ColumnName="CycleTimeFormula" />
+          <ScalarProperty Name="MachineHistoryStatusID" ColumnName="MachineHistoryStatusID" />
+          <ScalarProperty Name="DateDay" ColumnName="DateDay" />
+          <ScalarProperty Name="MachineID" ColumnName="MachineID" />
+          <ScalarProperty Name="AverageCycleTime" ColumnName="AverageCycleTime" />
+          <ScalarProperty Name="ProducedItems" ColumnName="ProducedItems" />
+          <ScalarProperty Name="OKProductCount" ColumnName="OKProductCount" />
+          <ScalarProperty Name="NGProductCoutn" ColumnName="NGProductCoutn" />
+          <ScalarProperty Name="OKRatio" ColumnName="OKRatio" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="MachineLossQualities">
+      <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineLossQualities">
+        <MappingFragment StoreEntitySet="MachineLossQualities">
+          <ScalarProperty Name="MachineLossQualityID" ColumnName="MachineLossQualityID" />
+          <ScalarProperty Name="MachineID" ColumnName="MachineID" />
+          <ScalarProperty Name="FaultInfo" ColumnName="FaultInfo" />
+          <ScalarProperty Name="MachineFaultTypeID" ColumnName="MachineFaultTypeID" />
+          <ScalarProperty Name="LossQuantity" ColumnName="LossQuantity" />
+          <ScalarProperty Name="LossDate" ColumnName="LossDate" />
+          <ScalarProperty Name="employeeId" ColumnName="employeeId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Machines">
+      <EntityTypeMapping TypeName="ernamas_dijitalModel.Machines">
+        <MappingFragment StoreEntitySet="Machines">
+          <ScalarProperty Name="PortAdress" ColumnName="PortAdress" />
+          <ScalarProperty Name="ExpectedCycleTime" ColumnName="ExpectedCycleTime" />
+          <ScalarProperty Name="MachineID" ColumnName="MachineID" />
+          <ScalarProperty Name="MachineIdentifier" ColumnName="MachineIdentifier" />
+          <ScalarProperty Name="IPAdresses" ColumnName="IPAdresses" />
+          <ScalarProperty Name="FactoryPlantId" ColumnName="FactoryPlantId" />
+          <ScalarProperty Name="LineId" ColumnName="LineId" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="MachineStatusTypes">
+      <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineStatusTypes">
+        <MappingFragment StoreEntitySet="MachineStatusTypes">
+          <ScalarProperty Name="StatusName" ColumnName="StatusName" />
+          <ScalarProperty Name="StatusTypeID" ColumnName="StatusTypeID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="MachineProductionDatas">
+      <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineProductionDatas">
+        <MappingFragment StoreEntitySet="MachineProductionDatas">
+          <ScalarProperty Name="MachineID" ColumnName="MachineID" />
+          <ScalarProperty Name="CycleTime" ColumnName="CycleTime" />
+          <ScalarProperty Name="ProductionCount" ColumnName="ProductionCount" />
+          <ScalarProperty Name="ProductionDate" ColumnName="ProductionDate" />
+          <ScalarProperty Name="Id" ColumnName="Id" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="MachinesCycleTimeHistories">
+      <EntityTypeMapping TypeName="ernamas_dijitalModel.MachinesCycleTimeHistories">
+        <MappingFragment StoreEntitySet="MachinesCycleTimeHistories">
+          <ScalarProperty Name="CycleTimeFormula" ColumnName="CycleTimeFormula" />
+          <ScalarProperty Name="DayTime" ColumnName="DayTime" />
+          <ScalarProperty Name="MachineID" ColumnName="MachineID" />
+          <ScalarProperty Name="MachinesCycleTimeHistoryID" ColumnName="MachinesCycleTimeHistoryID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>

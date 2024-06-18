@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34525.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERN028_MakinaVeriTopalamaFormsApp", "ERN028_MakinaVeriTopalamaFormsApp.csproj", "{76AB3FF1-7C53-4E52-B41D-CCAB4708EFDA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{76AB3FF1-7C53-4E52-B41D-CCAB4708EFDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76AB3FF1-7C53-4E52-B41D-CCAB4708EFDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76AB3FF1-7C53-4E52-B41D-CCAB4708EFDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76AB3FF1-7C53-4E52-B41D-CCAB4708EFDA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0FE1BE73-C156-40A3-8D4C-064B16FBABB6}
+	EndGlobalSection
+EndGlobal
