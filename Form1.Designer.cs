@@ -123,13 +123,13 @@
             this.Controls.Add(this.textBox1);
             this.Name = "Form1";
             this.Text = "Otomasyon Makineleri Anlık Veri İzleme Uygulaması";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button btnReadData;
         private System.Windows.Forms.TextBox textBox2;
@@ -138,6 +138,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox textBox3;
+        public System.Windows.Forms.Timer timer1;
     }
 }
 

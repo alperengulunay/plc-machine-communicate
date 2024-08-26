@@ -36,15 +36,14 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
 {
     public partial class Form1 : Form
     {
-        //private System.Timers.Timer dataTimer;
-
-        private Dictionary<string, MachineInfo> AdressList = new Dictionary<string, MachineInfo>();
+        private Dictionary<int, MachineInfo> AdressList = new Dictionary<int, MachineInfo>(); // Silinecek
+        private Dictionary<int, MachineInfo> MachineList = new Dictionary<int, MachineInfo>();
 
         private string ip_adress;
 
         int[] registers = new int[100];
 
-        int currnetProduction; // Production : DWORD : D200 : 
+        int currnetProduction; // Production : DWORD : D200 : 200
         int OKProductCount; // OK qty : DWORD : D202 : 202
         int NGProductCount; // NG qty : DWORD : D204 : 204
         float OKRatio; // OK Ratio : DWORD : D208 : 208
@@ -59,124 +58,149 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
 
         bool[] statusRegisters = new bool[100];
 
+        StreamWriter logWriter = new StreamWriter("ModbusLog.txt", true);
+
+        private System.Timers.Timer summaryTimer;
+
         public Form1()
         {
             InitializeComponent();
+        }
 
-            ernamas_dijitalEntities ernadb = new ernamas_dijitalEntities();
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // Timer Tick olayını başlat
+            timer1.Tick += new EventHandler(CheckTimeForSummary);
 
-            ModbusConnection();
+            // Timer'ı her 10 dakikada bir çalışacak şekilde ayarla
+            timer1.Interval = 600000; // 10 dakika (600.000 milisaniye) aralıklarla çalışacak
+            timer1.Start();
+        }
+
+        private void btnReadData_Click_1(object sender, EventArgs e)
+        {
+            ReadMachineData(); // Veri tabanındaki veriler ile MachineList içerisini doldurur
+
+            //AllMachineIpTest(); // MachineList'deki tüm makine ip adreslerine ping testi yapar MessageBox ile gösterir
+
+            OneMachineIpTest("10.10.16.30"); // Tek ip adresine ping testi yapar MessageBox ile gösterir
+
+            AllMachineModbusConnection(); // Tüm makinelere ModBus bağlantısı yapar ve nesneye Client'ti atar
 
             MainLoop();
         }
 
         public void MainLoop()
         {
-            if (modbusClient.Connected)
+            while (true) 
             {
-                while (modbusClient.Connected)
+                foreach (var machine in MachineList.Values)
                 {
-                    ModbusDataRead();
+                    if (machine.MachineModbusClient != null)
+                    {
+                        if (machine.MachineModbusClient.Connected)
+                        {
+                            ModbusDataRead(machine.MachineModbusClient);
 
-                    VeriTabanıYazma();
-
+                            //WriteDataBase(); // ModbusDataRead() fonksiyonunun içinde en sonunda çağırılıyor Error çıkmasına rağmen devam etmesini önlemek için
+                        }
+                        else // Bağlantı kopmuşsa
+                        {
+                            // Yeniden bağlanıp loop'a kaldığı yerden devam edecek
+                        }
+                    }
                     Thread.Sleep(200); // Çoklu istekler ve yüksek trafik kaynaklı uygulama çökmesine karşı
-                }
+                }         
             }
-            else // Bağlantı koparsa
+        }
+        public void AllMachineModbusConnection() 
+        {
+            foreach (var machine in MachineList.Values)
             {
-                // Log eklenecek
-                ModbusConnection();
-                MainLoop();
+                machine.MachineModbusClient = ModbusConnection(machine.IPAddress, machine.Port);
             }
         }
 
-        public void ModbusConnection()
+        public ModbusClient ModbusConnection(string ip_adress, int port)
         {
             try
             {
-                string ip_adress = "10.10.16.30";
-                int port = 502;
                 modbusClient = new ModbusClient(ip_adress, port);
                 modbusClient.Connect();
-
-                textBox1.Text = "";
+                return modbusClient;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                logWriter.WriteLine($"{ip_adress} while connection: Exception: {e}");
+                return null;
             }
         }
 
-        private readonly string logFilePath = "ModbusLog.txt";
-
-        public void ModbusDataRead()
+        public void ModbusDataRead(ModbusClient modbusClient)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            using (StreamWriter logWriter = new StreamWriter(logFilePath, true))
+            try
             {
-                try
-                {
-                    int startAddress = 200;
-                    int numRegisters = 10;
+                int startAddress = 200;
+                int numRegisters = 10;
 
-                    //logWriter.WriteLine(); // Bir satır boşluk bırakır
-                    //logWriter.WriteLine($"{DateTime.Now}: Modbus Client Connected: {modbusClient.Connected}");
-                    registers = modbusClient.ReadHoldingRegisters(startAddress, numRegisters);
+                //logWriter.WriteLine(); // Bir satır boşluk bırakır
+                //logWriter.WriteLine($"{DateTime.Now}: Modbus Client Connected: {modbusClient.Connected}");
+                registers = modbusClient.ReadHoldingRegisters(startAddress, numRegisters);
 
-                    currnetProduction = registers[0]; // Production : DWORD : D200 : 200
-                    OKProductCount = registers[2]; // OK qty : DWORD : D202 : 202
-                    NGProductCount = registers[4]; // NG qty : DWORD : D204 : 204
-                    OKRatio = registers[8]; // OK Ratio : DWORD : D208 : 208
-                    CycleTime = registers[6] / 10; // Current Beat : DWORD : D206 : 206
+                currnetProduction = registers[0]; // Production : DWORD : D200 : 200
+                OKProductCount = registers[2]; // OK qty : DWORD : D202 : 202
+                NGProductCount = registers[4]; // NG qty : DWORD : D204 : 204
+                OKRatio = registers[8]; // OK Ratio : DWORD : D208 : 208
+                CycleTime = registers[6] / 10; // Current Beat : DWORD : D206 : 206
 
-                    int statusAddress = 30730;
-                    int statusNumRegisters = 20;
-                    statusRegisters = modbusClient.ReadCoils(statusAddress, statusNumRegisters);
+                int statusAddress = 30730;
+                int statusNumRegisters = 20;
+                statusRegisters = modbusClient.ReadCoils(statusAddress, statusNumRegisters);
 
-                    run = statusRegisters[10]; // Run : BOOL : B10 : 30740
-                    auto = statusRegisters[12]; // Auto/Manuel : BOOL : B12 : 30742 -> (False: Manuel / True: Auto)
-                    ready = statusRegisters[8]; // Ready : BOOL : B08 : 30738
-                    fault = statusRegisters[15]; // Fault : BOOL : B15 : 30745
+                run = statusRegisters[10]; // Run : BOOL : B10 : 30740
+                auto = statusRegisters[12]; // Auto/Manuel : BOOL : B12 : 30742 -> (False: Manuel / True: Auto)
+                ready = statusRegisters[8]; // Ready : BOOL : B08 : 30738
+                fault = statusRegisters[15]; // Fault : BOOL : B15 : 30745
 
-                    //logWriter.WriteLine($"{DateTime.Now}: Current Production: {currnetProduction}");
-                    //logWriter.WriteLine($"{DateTime.Now}: Cycle Time: {CycleTime}");
-                }
-                catch (System.IndexOutOfRangeException ex)
-                {
-                    logWriter.WriteLine($"{DateTime.Now}: Exception: System.IndexOutOfRangeException");
-                    logWriter.WriteLine($"{DateTime.Now}: Message: {ex.Message}");
-                    logWriter.WriteLine($"{DateTime.Now}: StackTrace: {ex.StackTrace}");
+                //logWriter.WriteLine($"{DateTime.Now}: Current Production: {currnetProduction}");
+                //logWriter.WriteLine($"{DateTime.Now}: Cycle Time: {CycleTime}");
 
-                    ReconnectModbusClient();
-                }
-                catch (System.IO.IOException ex)
-                {
-                    logWriter.WriteLine($"{DateTime.Now}: Exception: System.IO.IOException");
-                    logWriter.WriteLine($"{DateTime.Now}: Message: {ex.Message}");
-                    logWriter.WriteLine($"{DateTime.Now}: StackTrace: {ex.StackTrace}");
+                WriteDataBase();
 
-                    ReconnectModbusClient();
-                }
-                catch (Exception e)
-                {
-                    logWriter.WriteLine($"{DateTime.Now}: General Exception Caught");
-                    logWriter.WriteLine($"{DateTime.Now}: Message: {e.Message}");
-                    logWriter.WriteLine($"{DateTime.Now}: StackTrace: {e.StackTrace}");
-                }
-                finally
-                {
-                    stopwatch.Stop();
-                    logWriter.WriteLine($"{DateTime.Now}: Modbus read operation took {stopwatch.ElapsedMilliseconds} ms");
-                }
+            }
+            catch (System.IndexOutOfRangeException ex)
+            {
+                logWriter.WriteLine($"{DateTime.Now}: Exception: System.IndexOutOfRangeException");
+                logWriter.WriteLine($"{DateTime.Now}: Message: {ex.Message}");
+                logWriter.WriteLine($"{DateTime.Now}: StackTrace: {ex.StackTrace}");
+
+                ReconnectModbusClient();
+            }
+            catch (System.IO.IOException ex)
+            {
+                logWriter.WriteLine($"{DateTime.Now}: Exception: System.IO.IOException");
+                logWriter.WriteLine($"{DateTime.Now}: Message: {ex.Message}");
+                logWriter.WriteLine($"{DateTime.Now}: StackTrace: {ex.StackTrace}");
+
+                ReconnectModbusClient();
+            }
+            catch (Exception e)
+            {
+                logWriter.WriteLine($"{DateTime.Now}: General Exception Caught");
+                logWriter.WriteLine($"{DateTime.Now}: Message: {e.Message}");
+                logWriter.WriteLine($"{DateTime.Now}: StackTrace: {e.StackTrace}");
+            }
+            finally
+            {
+                stopwatch.Stop();
+                //logWriter.WriteLine($"{DateTime.Now}: Modbus read operation took {stopwatch.ElapsedMilliseconds} ms");
             }
         }
 
-
-        public void VeriTabanıYazma()
+        public void WriteDataBase()
         {
             int lastProduction;
             int lastStatusTypeID;
@@ -197,7 +221,7 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
                     // Makine artış kontrolü
                     int differenceOfProduction = (currnetProduction - lastProduction);
 
-                    if (differenceOfProduction >= 1) // Eğer artış olmuşsa
+                    if (differenceOfProduction == 1) // Eğer artış olmuşsa
                     {
                         // O anki artış ile tablodaki değeri güncelle
                         machineStatus.CurrentDailyProduction = Convert.ToInt32(machineStatus.CurrentDailyProduction) + 1; // Eğer artış varsa bir arttır
@@ -288,7 +312,6 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
                         }
                     }
 
-
                     //// Komut zaman aşımını 60 saniyeye ayarlar
                     //context.Database.CommandTimeout = 60; // Bazı durumlarda veri tabanımıza veri yazma durumu sıkışıyor
 
@@ -299,30 +322,146 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
 
         public void ReconnectModbusClient()
         {
-            using (StreamWriter logWriter = new StreamWriter(logFilePath, true))
-            { 
-                try
-                {
-                    modbusClient.Disconnect();
-                }
-                catch (Exception ex)
-                {
-                    logWriter.WriteLine($"Failed to disconnect: {ex.Message}");
-                }
+            try
+            {
+                modbusClient.Disconnect();
+            }
+            catch (Exception ex)
+            {
+                logWriter.WriteLine($"Failed to disconnect: {ex.Message}");
+            }
 
-                try
+            try
+            {
+                modbusClient.Connect();
+                logWriter.WriteLine("Modbus client reconnected.");
+            }
+            catch (Exception ex)
+            {
+                logWriter.WriteLine($"Failed to reconnect: {ex.Message}");
+            }
+            
+        }
+
+        public void ReadMachineData() 
+        {
+            using (var context = new ernamas_dijitalEntities())
+            {
+                var machines = context.Machines.ToList();
+
+                foreach (var machine in machines)
                 {
-                    modbusClient.Connect();
-                    logWriter.WriteLine("Modbus client reconnected.");
-                }
-                catch (Exception ex)
-                {
-                    logWriter.WriteLine($"Failed to reconnect: {ex.Message}");
+                    MachineList.Add(machine.MachineID, new MachineInfo
+                    {
+                        MachineName = machine.MachineIdentifier,
+                        IPAddress = machine.IPAdresses,
+                        Port = Convert.ToInt32(machine.PortAdress), // Port bilgisini buradan alıyoruz
+                        ExpectedCycleTime = Convert.ToInt32(machine.ExpectedCycleTime)
+                    });
                 }
             }
         }
 
-        // MODBUS İLE VERİ TOPLAMA
+        public void AllMachineIpTest()
+        {
+            StringBuilder results = new StringBuilder();
+
+            foreach (var machine in MachineList.Values)
+            {
+                bool isPingable = PingHost(machine.IPAddress);
+                string result = $"{machine.IPAddress}: {(isPingable ? "Reachable" : "Not Reachable")}";
+                results.AppendLine(result);
+            }
+
+            MessageBox.Show(results.ToString(), "Ping Test Results", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        public void OneMachineIpTest(string ipAdress)
+        {
+            StringBuilder results = new StringBuilder();
+
+            bool isPingable = PingHost(ipAdress);
+            string result = $"{ipAdress}: {(isPingable ? "Reachable" : "Not Reachable")}";
+            results.AppendLine(result);
+
+            MessageBox.Show(results.ToString(), "Ping Test Results", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void CheckTimeForSummary(object sender, EventArgs e)
+        {
+            // Şu anki saati kontrol et
+            DateTime now = DateTime.Now;
+
+            // Eğer saat 18:00 ve 18:10 arasındaysa özetleme işlemini başlat
+            if (now.Hour == 16 && now.Minute >= 25 && now.Minute < 50)
+            {
+                PerformDailySummary();
+            }
+        }
+
+        private void PerformDailySummary()
+        {
+            try
+            {
+                using (var context = new ernamas_dijitalEntities())
+                {
+                    // 1. MachineCurrentStatus tablosundaki verileri al
+                    var currentStatusList = context.MachineCurrentStatus.ToList();
+
+                    // 2. Her bir kayıt için MachineHistoryStatus tablosuna ekleme yap
+                    foreach (var currentStatus in currentStatusList)
+                    {
+                        var historyStatus = new MachineHistoryStatus
+                        {
+                            DateDay = DateTime.Today,
+                            MachineID = currentStatus.MachineID,
+                            AverageCycleTime = currentStatus.AverageCycleTime,
+                            ProducedItems = currentStatus.ProducedItems,
+                            OKProductCount = currentStatus.OKProductCount,
+                            NGProductCount = currentStatus.NGProductCount,
+                            OKRatio = currentStatus.OKRatio,
+                            CycleTimeFormula = "{}",
+                        };
+
+                        context.MachineHistoryStatus.Add(historyStatus);
+
+                        // Hurda verileri ekleme kısmı
+                        if (currentStatus.NGProductCount > 0)
+                        {
+                            var lossQuality = new MachineLossQualities
+                            {
+                                MachineID = currentStatus.MachineID,
+                                FaultInfo = "",
+                                MachineFaultTypeID = 1,
+                                LossQuantity = currentStatus.NGProductCount,
+                                LossDate = DateTime.Today,
+                                employeeId = 0,
+                            };
+                        }
+                    }
+
+                    // 3. Veritabanında değişiklikleri kaydet
+                    context.SaveChanges();
+
+                    MessageBox.Show("Günlük özetleme işlemi başarıyla gerçekleştirildi.", "Özetleme", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Özetleme işlemi sırasında bir hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            // Özetleme işlemi tamamlandıktan sonra timer'ı durdurup ertesi gün için ayarlayabilirsiniz
+            timer1.Stop();
+
+            // Timer'ı ertesi gün için yeniden başlatmak isterseniz:
+            timer1.Interval = 86400000; // 24 saat bekler
+            timer1.Start();
+        }
+
+
+
+        // MODBUS İLE VERİ TOPLAMA // ----------------------------------------------------------------------------------- //
 
         private static int intervalBetweenMachines = 800; // milliseconds aralıklarla makinalara veri isteği atıyor
 
@@ -330,14 +469,14 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
 
         private CancellationTokenSource cts = new CancellationTokenSource();
 
-        private void btnReadData_Click_1(object sender, EventArgs e)
-        {
-            //string temp_ip_for_test = "10.10.16.70";
-            //if (PingHost(temp_ip_for_test)) MessageBox.Show($"Ping test is Successful\n for: " + temp_ip_for_test);
-            //else MessageBox.Show($"Ping test is Unsuccessful " + temp_ip_for_test);
+        //private void btnReadData_Click_1(object sender, EventArgs e)
+        //{
+        //    //string temp_ip_for_test = "10.10.16.70";
+        //    //if (PingHost(temp_ip_for_test)) MessageBox.Show($"Ping test is Successful\n for: " + temp_ip_for_test);
+        //    //else MessageBox.Show($"Ping test is Unsuccessful " + temp_ip_for_test);
 
-            StartReadingData();
-        }
+        //    StartReadingData();
+        //}
 
         private void StartReadingData()
         {
@@ -622,156 +761,6 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
             cts.Cancel();
         }
 
-
-
-        // VERİ OPTİMİZASYON VE GRAFİK OLUŞTURMA
-        private void btnJson_Click(object sender, EventArgs e)
-        {
-            string jsonFilePath = @"C:\Users\alper\source\repos\ERN028_MakinaVeriToplama\Resources\synthetic_data2.json";
-            if (!File.Exists(jsonFilePath))
-            {
-                MessageBox.Show("JSON file not found.");
-                return;
-            }
-
-            // JSON dosyasını okuma
-            var jsonData = File.ReadAllText(jsonFilePath);
-            var data = JsonConvert.DeserializeObject<SyntheticData>(jsonData);
-
-            // Zaman etiketlerini ve veriyi elde etme
-            var times = data.Labels.Select(t => TimeToSeconds(t)).ToArray();
-            var values = data.Data.ToArray();
-
-            // Veriyi optimize etme
-            var optimizedData = OptimizeDataWithAveraging(times, values, 25);
-
-            // Optimize edilmiş veriyi spline eğrisi ile modelleme
-            var spline = CubicSpline.InterpolateAkima(optimizedData.Item1, optimizedData.Item2);
-            //var spline = CubicSpline.InterpolateAkima(times, values);
-
-            // Yeni zaman aralıkları oluşturma ve spline eğrisini değerlendirme
-            var timesNew = Linspace(optimizedData.Item1.Min(), optimizedData.Item1.Max(), 1200);
-            var valuesNew = timesNew.Select(t => spline.Interpolate(t)).ToArray();
-
-            // Boşlukları tespit etme
-            var gaps = DetectGaps(optimizedData.Item1, 120);
-
-            // Eğriyi gösterme
-            //PlotData(times, values, timesNew, valuesNew);
-
-            // Yeni form penceresi açma ve grafiği gösterme
-            //GraphForm graphForm = new GraphForm(times, values, timesNew, valuesNew, gaps);
-            //graphForm.Show();
-        }
-
-        private double TimeToSeconds(string time)
-        {
-            var parts = time.Split(':').Select(int.Parse).ToArray();
-            return parts[0] * 3600 + parts[1] * 60 + parts[2];
-        }
-
-        private double[] Linspace(double start, double end, int num)
-        {
-            double[] result = new double[num];
-            double step = (end - start) / (num - 1);
-            for (int i = 0; i < num; i++)
-            {
-                result[i] = start + i * step;
-            }
-            return result;
-        }
-
-        private Tuple<double[], double[]> OptimizeDataWithAveraging(double[] times, double[] values, double threshold)
-        {
-            var optimizedTimes = new List<double>();
-            var optimizedValues = new List<double>();
-
-            double interval = 60; // Ortalama almak için 1 dakikalık aralık (60 saniye)
-            double currentIntervalStart = times[0];
-            double sum = 0;
-            int count = 0;
-
-            for (int i = 0; i < times.Length; i++)
-            {
-                if (times[i] < currentIntervalStart + interval)
-                {
-                    if (values[i] <= threshold * 1.1)
-                    {
-                        sum += values[i];
-                        count++;
-                    }
-                    else
-                    {
-                        optimizedTimes.Add(times[i]);
-                        optimizedValues.Add(values[i]);
-                    }
-                }
-                else
-                {
-                    if (count > 0)
-                    {
-                        optimizedTimes.Add(currentIntervalStart + interval / 2); // Aralığın ortası
-                        optimizedValues.Add(sum / count);
-                    }
-
-                    // Yeni aralığa geç
-                    currentIntervalStart += interval;
-                    sum = values[i] <= threshold * 1.1 ? values[i] : 0;
-                    count = values[i] <= threshold * 1.1 ? 1 : 0;
-
-                    if (values[i] > threshold * 1.1)
-                    {
-                        optimizedTimes.Add(times[i]);
-                        optimizedValues.Add(values[i]);
-                    }
-                }
-            }
-
-            // Son aralığı ekle
-            if (count > 0)
-            {
-                optimizedTimes.Add(currentIntervalStart + interval / 2);
-                optimizedValues.Add(sum / count);
-            }
-
-            return new Tuple<double[], double[]>(optimizedTimes.ToArray(), optimizedValues.ToArray());
-        }
-
-        private void SaveOptimizedDataToDatabase(int machineId, double[] times, double[] values)
-        {
-            var timesJson = JsonConvert.SerializeObject(times);
-            var valuesJson = JsonConvert.SerializeObject(values);
-
-            using (var connection = new SqlConnection("YourConnectionStringHere"))
-            {
-                var query = "INSERT INTO SplineData (MachineId, TimePoints, ValuePoints) VALUES (@MachineId, @TimePoints, @ValuePoints)";
-                using (var command = new SqlCommand(query, connection))
-                {
-                    command.Parameters.AddWithValue("@MachineId", machineId);
-                    command.Parameters.AddWithValue("@TimePoints", timesJson);
-                    command.Parameters.AddWithValue("@ValuePoints", valuesJson);
-
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                }
-            }
-        }
-
-        private List<Tuple<double, double>> DetectGaps(double[] times, double gapThreshold)
-        {
-            var gaps = new List<Tuple<double, double>>();
-
-            for (int i = 1; i < times.Length; i++)
-            {
-                if (times[i] - times[i - 1] >= gapThreshold)
-                {
-                    gaps.Add(new Tuple<double, double>(times[i - 1], times[i]));
-                }
-            }
-            return gaps;
-        }
-
-
         // GECE YARISI SENARYOSU
 
         private void ScheduleNightlyTask()
@@ -946,22 +935,14 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
             File.AppendAllText("error_log.txt", $"{DateTime.Now}: {ex.Message}\n{ex.StackTrace}\n");
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-    }
-
-    public class SyntheticData // Silinecek! Grafik testleri için class
-    {
-        public List<string> Labels { get; set; }
-        public List<double> Data { get; set; }
     }
     public class MachineInfo
     {
+        public string MachineName { get; set; }
         public string IPAddress { get; set; }
         public int Port { get; set; }
         public int ExpectedCycleTime { get; set; }
+        public ModbusClient MachineModbusClient { get; set; }
     }
     public class CycleData
     {
