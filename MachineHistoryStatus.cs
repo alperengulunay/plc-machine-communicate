@@ -20,7 +20,7 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
         public Nullable<double> AverageCycleTime { get; set; }
         public Nullable<int> ProducedItems { get; set; }
         public Nullable<int> OKProductCount { get; set; }
-        public Nullable<int> NGProductCoutn { get; set; }
+        public Nullable<int> NGProductCount { get; set; }
         public Nullable<double> OKRatio { get; set; }
         public string CycleTimeFormula { get; set; }
     }

@@ -37,13 +37,13 @@
             <PropertyRef Name="MachineDowntimeReportID" />
           </Key>
           <Property Name="MachineDowntimeReportID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="DownTimeDate" Type="datetime" />
-          <Property Name="MachineID" Type="nvarchar" MaxLength="50" />
-          <Property Name="FaultInfo" Type="nvarchar(max)" />
-          <Property Name="SolutionInfo" Type="nvarchar(max)" />
-          <Property Name="TimeForSolving" Type="int" />
-          <Property Name="Frequancy" Type="int" />
-          <Property Name="TotalTime" Type="int" />
+          <Property Name="DownTime" Type="datetime" />
+          <Property Name="DownEndTime" Type="datetime" />
+          <Property Name="MachineID" Type="int" />
+          <Property Name="MachineFaultCategoriesID" Type="int" />
+          <Property Name="AdditionalFaultInfo" Type="nvarchar(max)" />
+          <Property Name="MachineSolutionInfoCategoriesID" Type="int" />
+          <Property Name="AdditionalSolutionInfo" Type="nvarchar(max)" />
           <Property Name="employeeId" Type="int" />
         </EntityType>
         <EntityType Name="MachineFaultTypes">
@@ -63,7 +63,7 @@
           <Property Name="AverageCycleTime" Type="float" />
           <Property Name="ProducedItems" Type="int" />
           <Property Name="OKProductCount" Type="int" />
-          <Property Name="NGProductCoutn" Type="int" />
+          <Property Name="NGProductCount" Type="int" />
           <Property Name="OKRatio" Type="float" />
           <Property Name="CycleTimeFormula" Type="nvarchar(max)" />
         </EntityType>
@@ -211,40 +211,12 @@
           <Property Name="CurrentDailyProduction" Type="Int32" />
           <Property Name="MachineQueueNumber" Type="Int32" />
         </EntityType>
-        <EntityType Name="MachineDowntimeReports">
-          <Key>
-            <PropertyRef Name="MachineDowntimeReportID" />
-          </Key>
-          <Property Name="MachineDowntimeReportID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="DownTimeDate" Type="DateTime" Precision="3" />
-          <Property Name="MachineID" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="FaultInfo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="SolutionInfo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="TimeForSolving" Type="Int32" />
-          <Property Name="Frequancy" Type="Int32" />
-          <Property Name="TotalTime" Type="Int32" />
-          <Property Name="employeeId" Type="Int32" />
-        </EntityType>
         <EntityType Name="MachineFaultTypes">
           <Key>
             <PropertyRef Name="MachineFaultTypeID" />
           </Key>
           <Property Name="MachineFaultTypeID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="FaultTypeName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="MachineHistoryStatus">
-          <Key>
-            <PropertyRef Name="MachineHistoryStatusID" />
-          </Key>
-          <Property Name="MachineHistoryStatusID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="DateDay" Type="DateTime" Precision="3" />
-          <Property Name="MachineID" Type="Int32" />
-          <Property Name="AverageCycleTime" Type="Double" />
-          <Property Name="ProducedItems" Type="Int32" />
-          <Property Name="OKProductCount" Type="Int32" />
-          <Property Name="NGProductCoutn" Type="Int32" />
-          <Property Name="OKRatio" Type="Double" />
-          <Property Name="CycleTimeFormula" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="MachineLossQualities">
           <Key>
@@ -299,9 +271,7 @@
         <EntityContainer Name="ernamas_dijitalEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="MachineChangeLogs" EntityType="Self.MachineChangeLogs" />
           <EntitySet Name="MachineCurrentStatus" EntityType="Self.MachineCurrentStatus" />
-          <EntitySet Name="MachineDowntimeReports" EntityType="Self.MachineDowntimeReports" />
           <EntitySet Name="MachineFaultTypes" EntityType="Self.MachineFaultTypes" />
-          <EntitySet Name="MachineHistoryStatus" EntityType="Self.MachineHistoryStatus" />
           <EntitySet Name="MachineLossQualities" EntityType="Self.MachineLossQualities" />
           <EntitySet Name="Machines" EntityType="Self.Machines" />
           <AssociationSet Name="FK__ChangeLog__Machi__1B1EE1BE" Association="Self.FK__ChangeLog__Machi__1B1EE1BE">
@@ -319,6 +289,8 @@
           </AssociationSet>
           <EntitySet Name="MachineProductionDatas" EntityType="ernamas_dijitalModel.MachineProductionDatas" />
           <EntitySet Name="MachinesCycleTimeHistories" EntityType="ernamas_dijitalModel.MachinesCycleTimeHistories" />
+          <EntitySet Name="MachineDowntimeReports" EntityType="ernamas_dijitalModel.MachineDowntimeReports" />
+          <EntitySet Name="MachineHistoryStatus" EntityType="ernamas_dijitalModel.MachineHistoryStatus" />
         </EntityContainer>
         <EntityType Name="MachineStatusTypes">
           <Key>
@@ -359,6 +331,34 @@
           <Property Name="DayTime" Type="DateTime" Precision="3" />
           <Property Name="CycleTimeFormula" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
+        <EntityType Name="MachineDowntimeReports">
+          <Key>
+            <PropertyRef Name="MachineDowntimeReportID" />
+          </Key>
+          <Property Name="MachineDowntimeReportID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DownTime" Type="DateTime" Precision="3" />
+          <Property Name="DownEndTime" Type="DateTime" Precision="3" />
+          <Property Name="MachineID" Type="Int32" />
+          <Property Name="MachineFaultCategoriesID" Type="Int32" />
+          <Property Name="AdditionalFaultInfo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="MachineSolutionInfoCategoriesID" Type="Int32" />
+          <Property Name="AdditionalSolutionInfo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="employeeId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="MachineHistoryStatus">
+          <Key>
+            <PropertyRef Name="MachineHistoryStatusID" />
+          </Key>
+          <Property Name="MachineHistoryStatusID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DateDay" Type="DateTime" Precision="3" />
+          <Property Name="MachineID" Type="Int32" />
+          <Property Name="AverageCycleTime" Type="Double" />
+          <Property Name="ProducedItems" Type="Int32" />
+          <Property Name="OKProductCount" Type="Int32" />
+          <Property Name="NGProductCount" Type="Int32" />
+          <Property Name="OKRatio" Type="Double" />
+          <Property Name="CycleTimeFormula" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -394,41 +394,11 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="MachineDowntimeReports">
-            <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineDowntimeReports">
-              <MappingFragment StoreEntitySet="MachineDowntimeReports">
-                <ScalarProperty Name="MachineDowntimeReportID" ColumnName="MachineDowntimeReportID" />
-                <ScalarProperty Name="DownTimeDate" ColumnName="DownTimeDate" />
-                <ScalarProperty Name="MachineID" ColumnName="MachineID" />
-                <ScalarProperty Name="FaultInfo" ColumnName="FaultInfo" />
-                <ScalarProperty Name="SolutionInfo" ColumnName="SolutionInfo" />
-                <ScalarProperty Name="TimeForSolving" ColumnName="TimeForSolving" />
-                <ScalarProperty Name="Frequancy" ColumnName="Frequancy" />
-                <ScalarProperty Name="TotalTime" ColumnName="TotalTime" />
-                <ScalarProperty Name="employeeId" ColumnName="employeeId" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="MachineFaultTypes">
             <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineFaultTypes">
               <MappingFragment StoreEntitySet="MachineFaultTypes">
                 <ScalarProperty Name="MachineFaultTypeID" ColumnName="MachineFaultTypeID" />
                 <ScalarProperty Name="FaultTypeName" ColumnName="FaultTypeName" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="MachineHistoryStatus">
-            <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineHistoryStatus">
-              <MappingFragment StoreEntitySet="MachineHistoryStatus">
-                <ScalarProperty Name="CycleTimeFormula" ColumnName="CycleTimeFormula" />
-                <ScalarProperty Name="MachineHistoryStatusID" ColumnName="MachineHistoryStatusID" />
-                <ScalarProperty Name="DateDay" ColumnName="DateDay" />
-                <ScalarProperty Name="MachineID" ColumnName="MachineID" />
-                <ScalarProperty Name="AverageCycleTime" ColumnName="AverageCycleTime" />
-                <ScalarProperty Name="ProducedItems" ColumnName="ProducedItems" />
-                <ScalarProperty Name="OKProductCount" ColumnName="OKProductCount" />
-                <ScalarProperty Name="NGProductCoutn" ColumnName="NGProductCoutn" />
-                <ScalarProperty Name="OKRatio" ColumnName="OKRatio" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -484,6 +454,36 @@
                 <ScalarProperty Name="DayTime" ColumnName="DayTime" />
                 <ScalarProperty Name="MachineID" ColumnName="MachineID" />
                 <ScalarProperty Name="MachinesCycleTimeHistoryID" ColumnName="MachinesCycleTimeHistoryID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MachineDowntimeReports">
+            <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineDowntimeReports">
+              <MappingFragment StoreEntitySet="MachineDowntimeReports">
+                <ScalarProperty Name="employeeId" ColumnName="employeeId" />
+                <ScalarProperty Name="AdditionalSolutionInfo" ColumnName="AdditionalSolutionInfo" />
+                <ScalarProperty Name="MachineSolutionInfoCategoriesID" ColumnName="MachineSolutionInfoCategoriesID" />
+                <ScalarProperty Name="AdditionalFaultInfo" ColumnName="AdditionalFaultInfo" />
+                <ScalarProperty Name="MachineFaultCategoriesID" ColumnName="MachineFaultCategoriesID" />
+                <ScalarProperty Name="MachineID" ColumnName="MachineID" />
+                <ScalarProperty Name="DownEndTime" ColumnName="DownEndTime" />
+                <ScalarProperty Name="DownTime" ColumnName="DownTime" />
+                <ScalarProperty Name="MachineDowntimeReportID" ColumnName="MachineDowntimeReportID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MachineHistoryStatus">
+            <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineHistoryStatus">
+              <MappingFragment StoreEntitySet="MachineHistoryStatus">
+                <ScalarProperty Name="CycleTimeFormula" ColumnName="CycleTimeFormula" />
+                <ScalarProperty Name="OKRatio" ColumnName="OKRatio" />
+                <ScalarProperty Name="NGProductCount" ColumnName="NGProductCount" />
+                <ScalarProperty Name="OKProductCount" ColumnName="OKProductCount" />
+                <ScalarProperty Name="ProducedItems" ColumnName="ProducedItems" />
+                <ScalarProperty Name="AverageCycleTime" ColumnName="AverageCycleTime" />
+                <ScalarProperty Name="MachineID" ColumnName="MachineID" />
+                <ScalarProperty Name="DateDay" ColumnName="DateDay" />
+                <ScalarProperty Name="MachineHistoryStatusID" ColumnName="MachineHistoryStatusID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

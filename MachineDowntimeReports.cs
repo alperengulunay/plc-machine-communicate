@@ -15,13 +15,13 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
     public partial class MachineDowntimeReports
     {
         public int MachineDowntimeReportID { get; set; }
-        public Nullable<System.DateTime> DownTimeDate { get; set; }
-        public string MachineID { get; set; }
-        public string FaultInfo { get; set; }
-        public string SolutionInfo { get; set; }
-        public Nullable<int> TimeForSolving { get; set; }
-        public Nullable<int> Frequancy { get; set; }
-        public Nullable<int> TotalTime { get; set; }
+        public Nullable<System.DateTime> DownTime { get; set; }
+        public Nullable<System.DateTime> DownEndTime { get; set; }
+        public Nullable<int> MachineID { get; set; }
+        public Nullable<int> MachineFaultCategoriesID { get; set; }
+        public string AdditionalFaultInfo { get; set; }
+        public Nullable<int> MachineSolutionInfoCategoriesID { get; set; }
+        public string AdditionalSolutionInfo { get; set; }
         public Nullable<int> employeeId { get; set; }
     }
 }

@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Schema Namespace="ernamas_dijitalModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+  <EntityType Name="MachineChangeLogs">
+    <Key>
+      <PropertyRef Name="ChangeLogID" />
+    </Key>
+    <Property Name="ChangeLogID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="MachineID" Type="Int32" />
+    <Property Name="Timestamp" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="PreviousValue" Type="Double" />
+    <Property Name="ChangeValue" Type="Double" />
+    <NavigationProperty Name="Machines" Relationship="Self.FK__ChangeLog__Machi__1B1EE1BE" FromRole="MachineChangeLogs" ToRole="Machines" />
+  </EntityType>
+  <EntityType Name="MachineCurrentStatus">
+    <Key>
+      <PropertyRef Name="MachineCurrentStatusID" />
+    </Key>
+    <Property Name="MachineCurrentStatusID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="MachineID" Type="Int32" />
+    <Property Name="Timestamp" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="StatusTypeID" Type="Int32" />
+    <Property Name="CycleTime" Type="Double" />
+    <Property Name="AverageCycleTime" Type="Double" />
+    <Property Name="ProducedItems" Type="Int32" />
+    <Property Name="OKProductCount" Type="Int32" />
+    <Property Name="NGProductCount" Type="Int32" />
+    <Property Name="OKRatio" Type="Double" />
+    <NavigationProperty Name="Machines" Relationship="Self.FK__TestMachi__Machi__174E50DA" FromRole="MachineCurrentStatus" ToRole="Machines" />
+    <NavigationProperty Name="MachineStatusTypes" Relationship="ernamas_dijitalModel.FK__TestMachi__Statu__18427513" FromRole="MachineCurrentStatus" ToRole="MachineStatusTypes" />
+    <Property Name="CurrentDailyProduction" Type="Int32" />
+    <Property Name="MachineQueueNumber" Type="Int32" />
+  </EntityType>
+  <EntityType Name="MachineFaultTypes">
+    <Key>
+      <PropertyRef Name="MachineFaultTypeID" />
+    </Key>
+    <Property Name="MachineFaultTypeID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="FaultTypeName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="MachineLossQualities">
+    <Key>
+      <PropertyRef Name="MachineLossQualityID" />
+    </Key>
+    <Property Name="MachineLossQualityID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="MachineID" Type="Int32" />
+    <Property Name="FaultInfo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="MachineFaultTypeID" Type="Int32" />
+    <Property Name="LossQuantity" Type="Int32" />
+    <Property Name="LossDate" Type="DateTime" Precision="3" />
+    <Property Name="employeeId" Type="Int32" />
+  </EntityType>
+  <EntityType Name="Machines">
+    <Key>
+      <PropertyRef Name="MachineID" />
+    </Key>
+    <Property Name="MachineID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="MachineIdentifier" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+    <Property Name="IPAdresses" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="FactoryPlantId" Type="Int32" />
+    <Property Name="LineId" Type="Int32" />
+    <NavigationProperty Name="MachineChangeLogs" Relationship="Self.FK__ChangeLog__Machi__1B1EE1BE" FromRole="Machines" ToRole="MachineChangeLogs" />
+    <NavigationProperty Name="MachineCurrentStatus" Relationship="Self.FK__TestMachi__Machi__174E50DA" FromRole="Machines" ToRole="MachineCurrentStatus" />
+    <Property Name="ExpectedCycleTime" Type="Double" />
+    <Property Name="PortAdress" Type="Int32" />
+  </EntityType>
+  <Association Name="FK__ChangeLog__Machi__1B1EE1BE">
+    <End Role="Machines" Type="Self.Machines" Multiplicity="0..1" />
+    <End Role="MachineChangeLogs" Type="Self.MachineChangeLogs" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Machines">
+        <PropertyRef Name="MachineID" />
+      </Principal>
+      <Dependent Role="MachineChangeLogs">
+        <PropertyRef Name="MachineID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK__TestMachi__Machi__174E50DA">
+    <End Role="Machines" Type="Self.Machines" Multiplicity="0..1" />
+    <End Role="MachineCurrentStatus" Type="Self.MachineCurrentStatus" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Machines">
+        <PropertyRef Name="MachineID" />
+      </Principal>
+      <Dependent Role="MachineCurrentStatus">
+        <PropertyRef Name="MachineID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityContainer Name="ernamas_dijitalEntities" annotation:LazyLoadingEnabled="true">
+    <EntitySet Name="MachineChangeLogs" EntityType="Self.MachineChangeLogs" />
+    <EntitySet Name="MachineCurrentStatus" EntityType="Self.MachineCurrentStatus" />
+    <EntitySet Name="MachineFaultTypes" EntityType="Self.MachineFaultTypes" />
+    <EntitySet Name="MachineLossQualities" EntityType="Self.MachineLossQualities" />
+    <EntitySet Name="Machines" EntityType="Self.Machines" />
+    <AssociationSet Name="FK__ChangeLog__Machi__1B1EE1BE" Association="Self.FK__ChangeLog__Machi__1B1EE1BE">
+      <End Role="Machines" EntitySet="Machines" />
+      <End Role="MachineChangeLogs" EntitySet="MachineChangeLogs" />
+    </AssociationSet>
+    <AssociationSet Name="FK__TestMachi__Machi__174E50DA" Association="Self.FK__TestMachi__Machi__174E50DA">
+      <End Role="Machines" EntitySet="Machines" />
+      <End Role="MachineCurrentStatus" EntitySet="MachineCurrentStatus" />
+    </AssociationSet>
+    <EntitySet Name="MachineStatusTypes" EntityType="ernamas_dijitalModel.MachineStatusTypes" />
+    <AssociationSet Name="FK__TestMachi__Statu__18427513" Association="ernamas_dijitalModel.FK__TestMachi__Statu__18427513">
+      <End Role="MachineStatusTypes" EntitySet="MachineStatusTypes" />
+      <End Role="MachineCurrentStatus" EntitySet="MachineCurrentStatus" />
+    </AssociationSet>
+    <EntitySet Name="MachineProductionDatas" EntityType="ernamas_dijitalModel.MachineProductionDatas" />
+    <EntitySet Name="MachinesCycleTimeHistories" EntityType="ernamas_dijitalModel.MachinesCycleTimeHistories" />
+    <EntitySet Name="MachineDowntimeReports" EntityType="ernamas_dijitalModel.MachineDowntimeReports" />
+    <EntitySet Name="MachineHistoryStatus" EntityType="ernamas_dijitalModel.MachineHistoryStatus" />
+  </EntityContainer>
+  <EntityType Name="MachineStatusTypes">
+    <Key>
+      <PropertyRef Name="StatusTypeID" />
+    </Key>
+    <Property Name="StatusTypeID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="StatusName" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+    <NavigationProperty Name="MachineCurrentStatus" Relationship="ernamas_dijitalModel.FK__TestMachi__Statu__18427513" FromRole="MachineStatusTypes" ToRole="MachineCurrentStatus" />
+  </EntityType>
+  <Association Name="FK__TestMachi__Statu__18427513">
+    <End Type="ernamas_dijitalModel.MachineStatusTypes" Role="MachineStatusTypes" Multiplicity="0..1" />
+    <End Type="ernamas_dijitalModel.MachineCurrentStatus" Role="MachineCurrentStatus" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="MachineStatusTypes">
+        <PropertyRef Name="StatusTypeID" />
+      </Principal>
+      <Dependent Role="MachineCurrentStatus">
+        <PropertyRef Name="StatusTypeID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <EntityType Name="MachineProductionDatas">
+    <Key>
+      <PropertyRef Name="Id" />
+    </Key>
+    <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="ProductionDate" Type="DateTime" Nullable="false" Precision="3" />
+    <Property Name="ProductionCount" Type="Int32" Nullable="false" />
+    <Property Name="CycleTime" Type="Double" Nullable="false" />
+    <Property Name="MachineID" Type="Int32" Nullable="false" />
+  </EntityType>
+  <EntityType Name="MachinesCycleTimeHistories">
+    <Key>
+      <PropertyRef Name="MachinesCycleTimeHistoryID" />
+    </Key>
+    <Property Name="MachinesCycleTimeHistoryID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="MachineID" Type="Int32" />
+    <Property Name="DayTime" Type="DateTime" Precision="3" />
+    <Property Name="CycleTimeFormula" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+  </EntityType>
+  <EntityType Name="MachineDowntimeReports">
+    <Key>
+      <PropertyRef Name="MachineDowntimeReportID" />
+    </Key>
+    <Property Name="MachineDowntimeReportID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="DownTime" Type="DateTime" Precision="3" />
+    <Property Name="DownEndTime" Type="DateTime" Precision="3" />
+    <Property Name="MachineID" Type="Int32" />
+    <Property Name="MachineFaultCategoriesID" Type="Int32" />
+    <Property Name="AdditionalFaultInfo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="MachineSolutionInfoCategoriesID" Type="Int32" />
+    <Property Name="AdditionalSolutionInfo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+    <Property Name="employeeId" Type="Int32" />
+  </EntityType>
+  <EntityType Name="MachineHistoryStatus">
+    <Key>
+      <PropertyRef Name="MachineHistoryStatusID" />
+    </Key>
+    <Property Name="MachineHistoryStatusID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="DateDay" Type="DateTime" Precision="3" />
+    <Property Name="MachineID" Type="Int32" />
+    <Property Name="AverageCycleTime" Type="Double" />
+    <Property Name="ProducedItems" Type="Int32" />
+    <Property Name="OKProductCount" Type="Int32" />
+    <Property Name="NGProductCount" Type="Int32" />
+    <Property Name="OKRatio" Type="Double" />
+    <Property Name="CycleTimeFormula" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+  </EntityType>
+</Schema>

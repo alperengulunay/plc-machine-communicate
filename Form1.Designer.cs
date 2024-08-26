@@ -29,41 +29,27 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.btnJson = new System.Windows.Forms.Button();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.btnReadData = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
+            this.btnStop = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.textBox3 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
-            // 
-            // btnJson
-            // 
-            this.btnJson.Location = new System.Drawing.Point(437, 12);
-            this.btnJson.Name = "btnJson";
-            this.btnJson.Size = new System.Drawing.Size(271, 65);
-            this.btnJson.TabIndex = 0;
-            this.btnJson.Text = "Grafik Testi Başlat";
-            this.btnJson.UseVisualStyleBackColor = true;
-            this.btnJson.Click += new System.EventHandler(this.btnJson_Click);
-            // 
-            // progressBar1
-            // 
-            this.progressBar1.Location = new System.Drawing.Point(-9, 91);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(817, 10);
-            this.progressBar1.TabIndex = 1;
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(12, 12);
+            this.textBox1.Location = new System.Drawing.Point(191, 9);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(419, 22);
+            this.textBox1.Size = new System.Drawing.Size(315, 22);
             this.textBox1.TabIndex = 4;
             // 
             // btnReadData
             // 
-            this.btnReadData.Location = new System.Drawing.Point(325, 40);
+            this.btnReadData.Location = new System.Drawing.Point(512, 9);
             this.btnReadData.Name = "btnReadData";
             this.btnReadData.Size = new System.Drawing.Size(106, 23);
             this.btnReadData.TabIndex = 5;
@@ -73,36 +59,85 @@
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(12, 41);
+            this.textBox2.Location = new System.Drawing.Point(191, 38);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(290, 22);
+            this.textBox2.Size = new System.Drawing.Size(315, 22);
             this.textBox2.TabIndex = 6;
+            // 
+            // btnStop
+            // 
+            this.btnStop.Location = new System.Drawing.Point(513, 39);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(105, 23);
+            this.btnStop.TabIndex = 7;
+            this.btnStop.Text = "STOP";
+            this.btnStop.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(13, 13);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(155, 16);
+            this.label1.TabIndex = 8;
+            this.label1.Text = "İzlenen Makine IP adresi:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(52, 41);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(115, 16);
+            this.label2.TabIndex = 9;
+            this.label2.Text = "Makine Numarası:";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(87, 80);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(80, 16);
+            this.label3.TabIndex = 10;
+            this.label3.Text = "Dosya Yolu:";
+            // 
+            // textBox3
+            // 
+            this.textBox3.Location = new System.Drawing.Point(190, 77);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(424, 22);
+            this.textBox3.TabIndex = 11;
+            this.textBox3.Text = "C:\\Users\\Administrator\\Desktop\\Machine Comminication App";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(720, 101);
+            this.ClientSize = new System.Drawing.Size(627, 111);
+            this.Controls.Add(this.textBox3);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.btnStop);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.btnReadData);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.progressBar1);
-            this.Controls.Add(this.btnJson);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Otomasyon Makineleri Anlık Veri İzleme Uygulaması";
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-
-        private System.Windows.Forms.Button btnJson;
-        private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button btnReadData;
         private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.Button btnStop;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox textBox3;
     }
 }
 
