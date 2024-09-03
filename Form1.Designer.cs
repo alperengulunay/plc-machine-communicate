@@ -42,16 +42,19 @@
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(191, 9);
+            this.textBox1.Enabled = false;
+            this.textBox1.Location = new System.Drawing.Point(143, 7);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(315, 22);
+            this.textBox1.Size = new System.Drawing.Size(237, 20);
             this.textBox1.TabIndex = 4;
             // 
             // btnReadData
             // 
-            this.btnReadData.Location = new System.Drawing.Point(512, 9);
+            this.btnReadData.Location = new System.Drawing.Point(384, 7);
+            this.btnReadData.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnReadData.Name = "btnReadData";
-            this.btnReadData.Size = new System.Drawing.Size(106, 23);
+            this.btnReadData.Size = new System.Drawing.Size(80, 19);
             this.btnReadData.TabIndex = 5;
             this.btnReadData.Text = "Read Data";
             this.btnReadData.UseVisualStyleBackColor = true;
@@ -59,16 +62,19 @@
             // 
             // textBox2
             // 
-            this.textBox2.Location = new System.Drawing.Point(191, 38);
+            this.textBox2.Enabled = false;
+            this.textBox2.Location = new System.Drawing.Point(143, 31);
+            this.textBox2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(315, 22);
+            this.textBox2.Size = new System.Drawing.Size(237, 20);
             this.textBox2.TabIndex = 6;
             // 
             // btnStop
             // 
-            this.btnStop.Location = new System.Drawing.Point(513, 39);
+            this.btnStop.Location = new System.Drawing.Point(385, 32);
+            this.btnStop.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnStop.Name = "btnStop";
-            this.btnStop.Size = new System.Drawing.Size(105, 23);
+            this.btnStop.Size = new System.Drawing.Size(79, 19);
             this.btnStop.TabIndex = 7;
             this.btnStop.Text = "STOP";
             this.btnStop.UseVisualStyleBackColor = true;
@@ -76,43 +82,48 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 13);
+            this.label1.Location = new System.Drawing.Point(10, 11);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(155, 16);
+            this.label1.Size = new System.Drawing.Size(126, 13);
             this.label1.TabIndex = 8;
             this.label1.Text = "İzlenen Makine IP adresi:";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(52, 41);
+            this.label2.Location = new System.Drawing.Point(39, 33);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(115, 16);
+            this.label2.Size = new System.Drawing.Size(92, 13);
             this.label2.TabIndex = 9;
             this.label2.Text = "Makine Numarası:";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(87, 80);
+            this.label3.Location = new System.Drawing.Point(65, 65);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(80, 16);
+            this.label3.Size = new System.Drawing.Size(64, 13);
             this.label3.TabIndex = 10;
             this.label3.Text = "Dosya Yolu:";
             // 
             // textBox3
             // 
-            this.textBox3.Location = new System.Drawing.Point(190, 77);
+            this.textBox3.Enabled = false;
+            this.textBox3.Location = new System.Drawing.Point(142, 63);
+            this.textBox3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.textBox3.Name = "textBox3";
-            this.textBox3.Size = new System.Drawing.Size(424, 22);
+            this.textBox3.Size = new System.Drawing.Size(319, 20);
             this.textBox3.TabIndex = 11;
             this.textBox3.Text = "C:\\Users\\Administrator\\Desktop\\Machine Comminication App";
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(627, 111);
+            this.ClientSize = new System.Drawing.Size(470, 90);
             this.Controls.Add(this.textBox3);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -121,6 +132,7 @@
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.btnReadData);
             this.Controls.Add(this.textBox1);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "Form1";
             this.Text = "Otomasyon Makineleri Anlık Veri İzleme Uygulaması";
             this.Load += new System.EventHandler(this.Form1_Load);

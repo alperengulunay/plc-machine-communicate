@@ -125,9 +125,6 @@
     <Compile Include="Machines.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
-    <Compile Include="MachinesCycleTimeHistories.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
-    </Compile>
     <Compile Include="MachineStatusTypes.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>

@@ -26,6 +26,8 @@
     <Property Name="NGProductCount" Type="int" />
     <Property Name="OKRatio" Type="float" />
     <Property Name="CurrentDailyProduction" Type="int" />
+    <Property Name="CurrentDailyOKProduction" Type="int" />
+    <Property Name="CurrentDailyNGProduction" Type="int" />
   </EntityType>
   <EntityType Name="MachineDowntimeReports">
     <Key>
@@ -95,15 +97,7 @@
     <Property Name="LineId" Type="int" />
     <Property Name="ExpectedCycleTime" Type="float" />
     <Property Name="PortAdress" Type="int" />
-  </EntityType>
-  <EntityType Name="MachinesCycleTimeHistories">
-    <Key>
-      <PropertyRef Name="MachinesCycleTimeHistoryID" />
-    </Key>
-    <Property Name="MachinesCycleTimeHistoryID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-    <Property Name="MachineID" Type="int" />
-    <Property Name="DayTime" Type="datetime" />
-    <Property Name="CycleTimeFormula" Type="nvarchar(max)" />
+    <Property Name="State" Type="int" />
   </EntityType>
   <EntityType Name="MachineStatusTypes">
     <Key>
@@ -157,7 +151,6 @@
     <EntitySet Name="MachineLossQualities" EntityType="Self.MachineLossQualities" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="MachineProductionDatas" EntityType="Self.MachineProductionDatas" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="Machines" EntityType="Self.Machines" Schema="dbo" store:Type="Tables" />
-    <EntitySet Name="MachinesCycleTimeHistories" EntityType="Self.MachinesCycleTimeHistories" Schema="dbo" store:Type="Tables" />
     <EntitySet Name="MachineStatusTypes" EntityType="Self.MachineStatusTypes" Schema="dbo" store:Type="Tables" />
     <AssociationSet Name="FK__ChangeLog__Machi__1B1EE1BE" Association="Self.FK__ChangeLog__Machi__1B1EE1BE">
       <End Role="Machines" EntitySet="Machines" />

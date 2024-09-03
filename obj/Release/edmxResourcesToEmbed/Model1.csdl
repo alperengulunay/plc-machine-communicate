@@ -9,7 +9,7 @@
     <Property Name="Timestamp" Type="DateTime" Nullable="false" Precision="3" />
     <Property Name="PreviousValue" Type="Double" />
     <Property Name="ChangeValue" Type="Double" />
-    <NavigationProperty Name="Machines" Relationship="Self.FK__ChangeLog__Machi__1B1EE1BE" FromRole="MachineChangeLogs" ToRole="Machines" />
+    <NavigationProperty Name="Machines" Relationship="ernamas_dijitalModel.FK__ChangeLog__Machi__1B1EE1BE" FromRole="MachineChangeLogs" ToRole="Machines" />
   </EntityType>
   <EntityType Name="MachineCurrentStatus">
     <Key>
@@ -25,10 +25,12 @@
     <Property Name="OKProductCount" Type="Int32" />
     <Property Name="NGProductCount" Type="Int32" />
     <Property Name="OKRatio" Type="Double" />
-    <NavigationProperty Name="Machines" Relationship="Self.FK__TestMachi__Machi__174E50DA" FromRole="MachineCurrentStatus" ToRole="Machines" />
     <NavigationProperty Name="MachineStatusTypes" Relationship="ernamas_dijitalModel.FK__TestMachi__Statu__18427513" FromRole="MachineCurrentStatus" ToRole="MachineStatusTypes" />
     <Property Name="CurrentDailyProduction" Type="Int32" />
     <Property Name="MachineQueueNumber" Type="Int32" />
+    <Property Name="CurrentDailyOKProduction" Type="Int32" />
+    <Property Name="CurrentDailyNGProduction" Type="Int32" />
+    <NavigationProperty Name="Machines" Relationship="ernamas_dijitalModel.FK__TestMachi__Machi__174E50DA" FromRole="MachineCurrentStatus" ToRole="Machines" />
   </EntityType>
   <EntityType Name="MachineFaultTypes">
     <Key>
@@ -49,67 +51,28 @@
     <Property Name="LossDate" Type="DateTime" Precision="3" />
     <Property Name="employeeId" Type="Int32" />
   </EntityType>
-  <EntityType Name="Machines">
-    <Key>
-      <PropertyRef Name="MachineID" />
-    </Key>
-    <Property Name="MachineID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-    <Property Name="MachineIdentifier" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
-    <Property Name="IPAdresses" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-    <Property Name="FactoryPlantId" Type="Int32" />
-    <Property Name="LineId" Type="Int32" />
-    <NavigationProperty Name="MachineChangeLogs" Relationship="Self.FK__ChangeLog__Machi__1B1EE1BE" FromRole="Machines" ToRole="MachineChangeLogs" />
-    <NavigationProperty Name="MachineCurrentStatus" Relationship="Self.FK__TestMachi__Machi__174E50DA" FromRole="Machines" ToRole="MachineCurrentStatus" />
-    <Property Name="ExpectedCycleTime" Type="Double" />
-    <Property Name="PortAdress" Type="Int32" />
-  </EntityType>
-  <Association Name="FK__ChangeLog__Machi__1B1EE1BE">
-    <End Role="Machines" Type="Self.Machines" Multiplicity="0..1" />
-    <End Role="MachineChangeLogs" Type="Self.MachineChangeLogs" Multiplicity="*" />
-    <ReferentialConstraint>
-      <Principal Role="Machines">
-        <PropertyRef Name="MachineID" />
-      </Principal>
-      <Dependent Role="MachineChangeLogs">
-        <PropertyRef Name="MachineID" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
-  <Association Name="FK__TestMachi__Machi__174E50DA">
-    <End Role="Machines" Type="Self.Machines" Multiplicity="0..1" />
-    <End Role="MachineCurrentStatus" Type="Self.MachineCurrentStatus" Multiplicity="*" />
-    <ReferentialConstraint>
-      <Principal Role="Machines">
-        <PropertyRef Name="MachineID" />
-      </Principal>
-      <Dependent Role="MachineCurrentStatus">
-        <PropertyRef Name="MachineID" />
-      </Dependent>
-    </ReferentialConstraint>
-  </Association>
   <EntityContainer Name="ernamas_dijitalEntities" annotation:LazyLoadingEnabled="true">
     <EntitySet Name="MachineChangeLogs" EntityType="Self.MachineChangeLogs" />
     <EntitySet Name="MachineCurrentStatus" EntityType="Self.MachineCurrentStatus" />
     <EntitySet Name="MachineFaultTypes" EntityType="Self.MachineFaultTypes" />
     <EntitySet Name="MachineLossQualities" EntityType="Self.MachineLossQualities" />
-    <EntitySet Name="Machines" EntityType="Self.Machines" />
-    <AssociationSet Name="FK__ChangeLog__Machi__1B1EE1BE" Association="Self.FK__ChangeLog__Machi__1B1EE1BE">
-      <End Role="Machines" EntitySet="Machines" />
-      <End Role="MachineChangeLogs" EntitySet="MachineChangeLogs" />
-    </AssociationSet>
-    <AssociationSet Name="FK__TestMachi__Machi__174E50DA" Association="Self.FK__TestMachi__Machi__174E50DA">
-      <End Role="Machines" EntitySet="Machines" />
-      <End Role="MachineCurrentStatus" EntitySet="MachineCurrentStatus" />
-    </AssociationSet>
     <EntitySet Name="MachineStatusTypes" EntityType="ernamas_dijitalModel.MachineStatusTypes" />
     <AssociationSet Name="FK__TestMachi__Statu__18427513" Association="ernamas_dijitalModel.FK__TestMachi__Statu__18427513">
       <End Role="MachineStatusTypes" EntitySet="MachineStatusTypes" />
       <End Role="MachineCurrentStatus" EntitySet="MachineCurrentStatus" />
     </AssociationSet>
     <EntitySet Name="MachineProductionDatas" EntityType="ernamas_dijitalModel.MachineProductionDatas" />
-    <EntitySet Name="MachinesCycleTimeHistories" EntityType="ernamas_dijitalModel.MachinesCycleTimeHistories" />
     <EntitySet Name="MachineDowntimeReports" EntityType="ernamas_dijitalModel.MachineDowntimeReports" />
     <EntitySet Name="MachineHistoryStatus" EntityType="ernamas_dijitalModel.MachineHistoryStatus" />
+    <EntitySet Name="Machines" EntityType="ernamas_dijitalModel.Machines" />
+    <AssociationSet Name="FK__ChangeLog__Machi__1B1EE1BE" Association="ernamas_dijitalModel.FK__ChangeLog__Machi__1B1EE1BE">
+      <End Role="Machines" EntitySet="Machines" />
+      <End Role="MachineChangeLogs" EntitySet="MachineChangeLogs" />
+    </AssociationSet>
+    <AssociationSet Name="FK__TestMachi__Machi__174E50DA" Association="ernamas_dijitalModel.FK__TestMachi__Machi__174E50DA">
+      <End Role="Machines" EntitySet="Machines" />
+      <End Role="MachineCurrentStatus" EntitySet="MachineCurrentStatus" />
+    </AssociationSet>
   </EntityContainer>
   <EntityType Name="MachineStatusTypes">
     <Key>
@@ -141,15 +104,6 @@
     <Property Name="CycleTime" Type="Double" Nullable="false" />
     <Property Name="MachineID" Type="Int32" Nullable="false" />
   </EntityType>
-  <EntityType Name="MachinesCycleTimeHistories">
-    <Key>
-      <PropertyRef Name="MachinesCycleTimeHistoryID" />
-    </Key>
-    <Property Name="MachinesCycleTimeHistoryID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-    <Property Name="MachineID" Type="Int32" />
-    <Property Name="DayTime" Type="DateTime" Precision="3" />
-    <Property Name="CycleTimeFormula" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-  </EntityType>
   <EntityType Name="MachineDowntimeReports">
     <Key>
       <PropertyRef Name="MachineDowntimeReportID" />
@@ -178,4 +132,43 @@
     <Property Name="OKRatio" Type="Double" />
     <Property Name="CycleTimeFormula" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
   </EntityType>
+  <EntityType Name="Machines">
+    <Key>
+      <PropertyRef Name="MachineID" />
+    </Key>
+    <Property Name="MachineID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+    <Property Name="MachineIdentifier" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="IPAdresses" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+    <Property Name="FactoryPlantId" Type="Int32" />
+    <Property Name="LineId" Type="Int32" />
+    <Property Name="ExpectedCycleTime" Type="Double" />
+    <Property Name="PortAdress" Type="Int32" />
+    <Property Name="State" Type="Int32" />
+    <NavigationProperty Name="MachineChangeLogs" Relationship="ernamas_dijitalModel.FK__ChangeLog__Machi__1B1EE1BE" FromRole="Machines" ToRole="MachineChangeLogs" />
+    <NavigationProperty Name="MachineCurrentStatus" Relationship="ernamas_dijitalModel.FK__TestMachi__Machi__174E50DA" FromRole="Machines" ToRole="MachineCurrentStatus" />
+  </EntityType>
+  <Association Name="FK__ChangeLog__Machi__1B1EE1BE">
+    <End Type="ernamas_dijitalModel.Machines" Role="Machines" Multiplicity="0..1" />
+    <End Type="ernamas_dijitalModel.MachineChangeLogs" Role="MachineChangeLogs" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Machines">
+        <PropertyRef Name="MachineID" />
+      </Principal>
+      <Dependent Role="MachineChangeLogs">
+        <PropertyRef Name="MachineID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
+  <Association Name="FK__TestMachi__Machi__174E50DA">
+    <End Type="ernamas_dijitalModel.Machines" Role="Machines" Multiplicity="0..1" />
+    <End Type="ernamas_dijitalModel.MachineCurrentStatus" Role="MachineCurrentStatus" Multiplicity="*" />
+    <ReferentialConstraint>
+      <Principal Role="Machines">
+        <PropertyRef Name="MachineID" />
+      </Principal>
+      <Dependent Role="MachineCurrentStatus">
+        <PropertyRef Name="MachineID" />
+      </Dependent>
+    </ReferentialConstraint>
+  </Association>
 </Schema>
