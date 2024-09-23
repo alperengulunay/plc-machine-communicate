@@ -90,6 +90,7 @@
           <Property Name="ProductionDate" Type="datetime" Nullable="false" />
           <Property Name="ProductionCount" Type="int" Nullable="false" />
           <Property Name="CycleTime" Type="float" Nullable="false" />
+          <Property Name="CalculatedCycleTime" Type="float" />
         </EntityType>
         <EntityType Name="Machines">
           <Key>
@@ -103,6 +104,7 @@
           <Property Name="ExpectedCycleTime" Type="float" />
           <Property Name="PortAdress" Type="int" />
           <Property Name="State" Type="int" />
+          <Property Name="ProductionSides" Type="int" />
         </EntityType>
         <EntityType Name="MachineStatusTypes">
           <Key>
@@ -277,6 +279,7 @@
           <Property Name="ProductionCount" Type="Int32" Nullable="false" />
           <Property Name="CycleTime" Type="Double" Nullable="false" />
           <Property Name="MachineID" Type="Int32" Nullable="false" />
+          <Property Name="CalculatedCycleTime" Type="Double" />
         </EntityType>
         <EntityType Name="MachineDowntimeReports">
           <Key>
@@ -320,6 +323,7 @@
           <Property Name="State" Type="Int32" />
           <NavigationProperty Name="MachineChangeLogs" Relationship="ernamas_dijitalModel.FK__ChangeLog__Machi__1B1EE1BE" FromRole="Machines" ToRole="MachineChangeLogs" />
           <NavigationProperty Name="MachineCurrentStatus" Relationship="ernamas_dijitalModel.FK__TestMachi__Machi__174E50DA" FromRole="Machines" ToRole="MachineCurrentStatus" />
+          <Property Name="ProductionSides" Type="Int32" />
         </EntityType>
         <Association Name="FK__ChangeLog__Machi__1B1EE1BE">
           <End Type="ernamas_dijitalModel.Machines" Role="Machines" Multiplicity="0..1" />
@@ -414,6 +418,7 @@
           <EntitySetMapping Name="MachineProductionDatas">
             <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineProductionDatas">
               <MappingFragment StoreEntitySet="MachineProductionDatas">
+                <ScalarProperty Name="CalculatedCycleTime" ColumnName="CalculatedCycleTime" />
                 <ScalarProperty Name="MachineID" ColumnName="MachineID" />
                 <ScalarProperty Name="CycleTime" ColumnName="CycleTime" />
                 <ScalarProperty Name="ProductionCount" ColumnName="ProductionCount" />
@@ -455,6 +460,7 @@
           <EntitySetMapping Name="Machines">
             <EntityTypeMapping TypeName="ernamas_dijitalModel.Machines">
               <MappingFragment StoreEntitySet="Machines">
+                <ScalarProperty Name="ProductionSides" ColumnName="ProductionSides" />
                 <ScalarProperty Name="State" ColumnName="State" />
                 <ScalarProperty Name="PortAdress" ColumnName="PortAdress" />
                 <ScalarProperty Name="ExpectedCycleTime" ColumnName="ExpectedCycleTime" />

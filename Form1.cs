@@ -10,6 +10,7 @@ using EasyModbus;
 using System.IO;
 using System.Diagnostics;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 
 namespace ERN028_MakinaVeriTopalamaFormsApp
@@ -24,16 +25,18 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
 
         private System.Timers.Timer summaryTimer;
 
-        private TimeSpan summaryStartTime = new TimeSpan(18, 0, 0); // 18:00
-
+        private CancellationTokenSource cancellationTokenSource;
 
         public Form1()
         {
             InitializeComponent();
+            cancellationTokenSource = new CancellationTokenSource();
         }
 
         private void btnReadData_Click_1(object sender, EventArgs e)
         {
+            btnReadData.Enabled = false; // Butonu devre dışı bırak
+
             ReadMachineData(); // Veri tabanındaki veriler ile (GLOBAL) MachineList oluşturur
 
             // AllMachinPingTest(); // MachineList'deki tüm ip adreslerine ping testi yapar
@@ -42,15 +45,17 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
 
             AllMachineModbusConnection(); // Tüm makinelere ModBus bağlantısı yapar (ve nesneye Client'ti atar)
 
-            MainLoop(); // Sırayla tüm makinelerden veri alır
+            Task.Run(() => MainLoop(cancellationTokenSource.Token)); // Döngüyü arka planda çalıştır
         }
 
-        public void MainLoop()
+        public void MainLoop(CancellationToken token)
         {
-            while (true) 
+            while (!token.IsCancellationRequested)
             {
                 foreach (var machine in MachineList.Values)
                 {
+                    UpdateUI(machine);
+
                     if (machine.MachineModbusClient != null)
                     {
                         if (machine.MachineModbusClient.Connected)
@@ -66,10 +71,17 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
                     {
                         machine.MachineModbusClient = ModbusConnection(machine);
                     }
-                    Thread.Sleep(400); // Çoklu istekler ve yüksek trafik kaynaklı bağlantı çökmesine karşı
+                    Thread.Sleep(200); // Çoklu istekler ve yüksek trafik kaynaklı bağlantı çökmesine karşı
                 }
             }
         }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            cancellationTokenSource.Cancel(); // Döngüyü sonlandır
+            base.OnFormClosing(e);
+        }
+
         public void AllMachineModbusConnection()
         {
             foreach (var machine in MachineList.Values)
@@ -90,7 +102,7 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
             {
                 if (!string.IsNullOrEmpty(e.Message)) 
                 {
-                    LogText($"{DateTime.Now}\t {machine.IPAddress}\t Error while connection: Exception: {e.Message}");
+                    //LogText($"{machine.IPAddress}\t Error while connection: Exception: {e.Message}"); // Log belgesini okunamaz hale getirdiği için kapatıldı
                 }
 
                 WriteDataBaseDisconnection(machine);
@@ -107,26 +119,34 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
             try
             {
                 int startAddress = 200;
-                int numRegisters = 10;
+                int numRegisters = 20;
 
                 int[] registers = machine.MachineModbusClient.ReadHoldingRegisters(startAddress, numRegisters);
 
-                machine.MachineData.CurrentProduction = registers[0]; // Production : DWORD : D200 : 200
-                machine.MachineData.OKProductCount = registers[2]; // OK qty : DWORD : D202 : 202
-                machine.MachineData.NGProductCount = registers[4]; // NG qty : DWORD : D204 : 204
-                machine.MachineData.CycleTime = registers[6] / 10; // Current Beat : DWORD : D206 : 206
-                machine.MachineData.OKRatio = registers[8]; // OK Ratio : DWORD : D208 : 208
+                machine.MachineData.CurrentProduction = registers[0];           // Production           : DWORD : D200 : 200
+                machine.MachineData.OKProductCount = registers[2];              // OK qty               : DWORD : D202 : 202
+                machine.MachineData.NGProductCount = registers[4];              // NG qty               : DWORD : D204 : 204
+                machine.MachineData.CycleTime = registers[6] / 10;              // Cycle Time           : DWORD : D206 : 206
+                machine.MachineData.OKRatio = registers[8];                     // OK Ratio             : DWORD : D208 : 208
+                machine.MachineData.SecondCycleTime = registers[10] / 10;       // Second Cycle Time    : DWORD : D208 : 210
 
-                int statusAddress = 30730;
-                int statusNumRegisters = 20;
+                int statusAddress = 30720;
+                int statusNumRegisters = 100;
                 
                 bool[] statusRegisters = machine.MachineModbusClient.ReadCoils(statusAddress, statusNumRegisters);
 
-                machine.MachineData.Run = statusRegisters[10]; // Run : BOOL : B10 : 30740
-                machine.MachineData.Auto = statusRegisters[12]; // Auto/Manuel : BOOL : B12 : 30742 -> (False: Manuel / True: Auto)
-                machine.MachineData.Ready = statusRegisters[8]; // Ready : BOOL : B08 : 30738
-                machine.MachineData.Fault = statusRegisters[15]; // Fault : BOOL : B15 : 30745
+                machine.MachineData.Run = statusRegisters[58];      // Run          : BOOL : B10 : 30740
+                machine.MachineData.Auto = statusRegisters[22];     // Auto/Manuel  : BOOL : B12 : 30742 -> (False: Manuel / True: Auto)
+                machine.MachineData.Ready = statusRegisters[18];    // Ready        : BOOL : B08 : 30738
+                machine.MachineData.Fault = statusRegisters[25];    // Fault        : BOOL : B15 : 30745
 
+                //LogText(Convert.ToString(machine.IPAddress)
+                //    + '\n' + Convert.ToString("Run   :\t" + machine.MachineData.Run)
+                //    + '\n' + Convert.ToString("Ready :\t" + machine.MachineData.Ready)
+                //    + '\n' + Convert.ToString("Fault :\t" + machine.MachineData.Fault) 
+                //    + '\n' + Convert.ToString("Prodt :\t" + machine.MachineData.CurrentProduction) 
+                //    + '\n' + Convert.ToString("CycTi :\t" + machine.MachineData.CycleTime) 
+                //    + '\n');
 
                 WriteDataBase(machine);
 
@@ -134,7 +154,7 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
             catch (System.IndexOutOfRangeException ex)
             {
                 LogText($"{machine.IPAddress}\t Exception: System.IndexOutOfRangeException");
-                LogText($"{machine.IPAddress}\t Message: ");
+                LogText($"{machine.IPAddress}\t Message: {ex.Message}");
                 LogText($"{machine.IPAddress}\t StackTrace: {ex.StackTrace}");
 
                 ReconnectModbusClient(machine.MachineModbusClient);
@@ -142,7 +162,7 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
             catch (System.IO.IOException ex)
             {
                 LogText($"{machine.IPAddress}\t Exception: System.IO.IOException");
-                LogText($"{machine.IPAddress}\t Message: ");
+                LogText($"{machine.IPAddress}\t Message: {ex.Message}");
                 LogText($"{machine.IPAddress}\t StackTrace: {ex.StackTrace}");
 
                 ReconnectModbusClient(machine.MachineModbusClient);
@@ -171,18 +191,30 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
                 {
                     // Karşılaştırma için bir önceki kayıttaki veriler
                     int lastProduction = Convert.ToInt32(machineCurrentStatus.ProducedItems);
+                    int lastOKProduction = Convert.ToInt32(machineCurrentStatus.CurrentDailyOKProduction);
+                    int lastNGProduction = Convert.ToInt32(machineCurrentStatus.CurrentDailyNGProduction);
                     int lastStatusTypeID = Convert.ToInt32(machineCurrentStatus.StatusTypeID);
 
-                    // Makine artış kontrolü
+                    // Makine artış kontrolleri
                     int differenceOfProduction = (machine.MachineData.CurrentProduction - lastProduction);
-
-                    if (differenceOfProduction == 1) // Eğer 1 artış olmuşsa
+                    if (differenceOfProduction < 3) //Eğer artış 3 ün altındaysa (güvenli bir artış) bu artışı CurrentDailyProduction 'a ekle
                     {
                         // O anki artış ile tablodaki değeri güncelle
-                        machineCurrentStatus.CurrentDailyProduction = Convert.ToInt32(machineCurrentStatus.CurrentDailyProduction) + 1; // Eğer artış varsa bir arttır
-
+                        machineCurrentStatus.CurrentDailyProduction = Convert.ToInt32(machineCurrentStatus.CurrentDailyProduction) + differenceOfProduction;
                         // Cycle Time tabloya tek tek kayıt
                         SaveNewCycleTimeData(machineCurrentStatus.MachineID, DateTime.Now, machineCurrentStatus.CurrentDailyProduction, machine.MachineData.CycleTime);
+                    }
+
+                    int differenceOfOK = (machine.MachineData.OKProductCount - lastOKProduction);
+                    if (differenceOfOK == 1)
+                    {
+                        machineCurrentStatus.CurrentDailyOKProduction = Convert.ToInt32(machineCurrentStatus.CurrentDailyOKProduction) + 1;
+                    }
+
+                    int differenceOfNG = (machine.MachineData.NGProductCount - lastNGProduction);
+                    if (differenceOfNG == 1)
+                    {
+                        machineCurrentStatus.CurrentDailyNGProduction = Convert.ToInt32(machineCurrentStatus.CurrentDailyNGProduction) + 1;
                     }
 
                     // Hesaplama yapmak için geçici durum bilgisi atama
@@ -201,6 +233,20 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
                     else
                     {
                         temp_Status = 5; // Invalid
+                    }
+
+                    // İki taraflı cycle time bilgisi için ortalama hesabı
+                    if (machine.MachineData.SecondCycleTime != 0)
+                    {
+                        if (machine.MachineData.CycleTime != 0)
+                        {
+                            float temp_cycle_time = (machine.MachineData.CycleTime + machine.MachineData.SecondCycleTime) / 2;
+                            machine.MachineData.CycleTime = temp_cycle_time;
+                        }
+                        else
+                        {
+                            machine.MachineData.CycleTime = machine.MachineData.SecondCycleTime;
+                        }
                     }
 
                     // MachineCurrentStatus Bilgilerin Güncellenmesi
@@ -275,7 +321,10 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
                         AverageCycleTime = 0,
                         OKRatio = machine.MachineData.OKRatio,
                         Timestamp = DateTime.Now,
-                        StatusTypeID = 5
+                        StatusTypeID = 5,
+                        CurrentDailyNGProduction = 0,
+                        CurrentDailyOKProduction = 0,
+                        CurrentDailyProduction = 0,
                     };
 
                     context.MachineCurrentStatus.Add(machineCurrentStatus);
@@ -289,7 +338,7 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
             using (var context = new ernamas_dijitalEntities())
             {
                 context.Database.CommandTimeout = 5; // ...saniye bağlantı kurulması için bekleyecek
-                int retryCount = 3; // Eğer bir SQL bağlantı sorunu olursa 3 kere yeniden deneme (test olarak yazılmıştır)
+                int retryCount = 3; // Eğer bir SQL bağlantı sorunu olursa 3 kere yeniden deneme (test edilmek üzere yazılmıştır)
                 for (int i = 0; i < retryCount; i++)
                 {
                     try
@@ -297,6 +346,7 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
                         var machineCurrentStatus = context.MachineCurrentStatus.FirstOrDefault(l => l.MachineID == machine.MachineID);
                         if (machineCurrentStatus != null)
                         {
+                            machineCurrentStatus.Timestamp = DateTime.Now;
                             machineCurrentStatus.StatusTypeID = 3; // Disconnect
                         }
                         context.SaveChanges();
@@ -333,7 +383,7 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
             }
         }
 
-        public void ReadMachineData() 
+        public void ReadMachineData()
         {
             using (var context = new ernamas_dijitalEntities())
             {
@@ -391,40 +441,40 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
             timer1.Start();
         }
 
-        // Her gün belirlenen zamanda güncelleme yaptıracak fonksiyon
-
-        //private void CheckTimeForSummary(object sender, EventArgs e) 
-        //{
-        //    TimeSpan now = DateTime.Now.TimeOfDay;
-
-        //    // summaryEndTime, summaryStartTime'a 10 dakika eklenmiş hali olarak tanımlandı
-        //    TimeSpan summaryEndTime = summaryStartTime.Add(new TimeSpan(0, 10, 0));
-
-        //    bool isInTimeRange;
-
-        //    if (summaryEndTime < summaryStartTime)
-        //    {
-        //        isInTimeRange = (now >= summaryStartTime || now < summaryEndTime);
-        //    }
-        //    else
-        //    {
-        //        isInTimeRange = (now >= summaryStartTime && now < summaryEndTime);
-        //    }
-
-        //    // Eğer saat aralığı içindeyse özetleme işlemini başlat
-        //    if (isInTimeRange)
-        //    {
-        //        PerformDailySummary();
-
-        //        PerformDailyNGSummary();
-        //    }
-        //}
-
         private void CheckTimeForSummary(object sender, EventArgs e)
         {
             // Özetleme işlemleri her tetikleme anında yapılacak
             PerformDailySummary();
             PerformDailyNGSummary();
+
+            // Mevcut zamanı al
+            DateTime now = DateTime.Now;
+
+            // Saat 23:48 ile 23:59 arasında mı kontrol et
+            if (now.Hour == 23 && now.Minute >= 48 && now.Minute <= 59)
+            {
+                MachineCurrentStatusReset(); // Bu zaman aralığında çalışacak fonksiyon
+            }
+        }
+
+        private void MachineCurrentStatusReset()
+        {
+            using (var context = new ernamas_dijitalEntities())
+            {
+                // Tüm MachineCurrentStatus kayıtlarını getir
+                var machineStatuses = context.MachineCurrentStatus.ToList();
+
+                // Her bir kayıttaki ilgili sütunları sıfırla
+                foreach (var status in machineStatuses)
+                {
+                    status.CurrentDailyProduction = 0;
+                    status.CurrentDailyOKProduction = 0;
+                    status.CurrentDailyNGProduction = 0;
+                }
+
+                // Değişiklikleri kaydet
+                context.SaveChanges();
+            }
         }
 
 
@@ -450,15 +500,17 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
                     // Her bir kayıt için MachineHistoryStatus ve hurda ekleme işlemi yap
                     foreach (var currentStatus in currentStatusList)
                     {
+                        double averageCycleTime = GetAverageCycleTimeForToday(currentStatus.MachineID);
+
                         // MachineHistoryStatus tablosuna ekleme yap
                         var historyStatus = new MachineHistoryStatus
                         {
                             DateDay = today,
                             MachineID = currentStatus.MachineID,
-                            AverageCycleTime = currentStatus.AverageCycleTime,
-                            ProducedItems = currentStatus.ProducedItems,
-                            OKProductCount = currentStatus.OKProductCount,
-                            NGProductCount = currentStatus.NGProductCount,
+                            AverageCycleTime = averageCycleTime,
+                            ProducedItems = currentStatus.CurrentDailyProduction,
+                            OKProductCount = currentStatus.CurrentDailyOKProduction,
+                            NGProductCount = currentStatus.CurrentDailyNGProduction,
                             OKRatio = currentStatus.OKRatio,
                             CycleTimeFormula = "{}",
                         };
@@ -485,13 +537,12 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
                     // Veritabanında değişiklikleri kaydet
                     context.SaveChanges();
 
-                    MessageBox.Show("Günlük özetleme işlemi başarıyla gerçekleştirildi.", "Özetleme", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LogText("Günlük özetleme işlemi başarıyla gerçekleştirildi.");
                 }
-
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Özetleme işlemi sırasında bir hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogText($"Özetleme işlemi sırasında bir hata oluştu: {ex.Message}");
             }
         }
 
@@ -516,7 +567,10 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
                             .Sum(l => l.LossQuantity);
 
                         // Mevcut NGProductCount'u güncelleyerek ekle
-                        machineHistoryStatus.NGProductCount += todayLosses;
+                        if (todayLosses != null)
+                        {
+                            machineHistoryStatus.NGProductCount += todayLosses;
+                        }
 
                         // Değişiklikleri veritabanına kaydet
                         context.SaveChanges();
@@ -532,12 +586,15 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
         {
             using (var context = new ernamas_dijitalEntities())
             {
+                var machineCurrentStatus = context.MachineCurrentStatus.FirstOrDefault(l => l.MachineID == machineID); // Burada kalındı
+
                 var newLog = new MachineProductionDatas
                 {
                     MachineID = Convert.ToInt32(machineID),
                     ProductionDate = productionDate,
                     ProductionCount = Convert.ToInt32(productionCount),
-                    CycleTime = cycleTime
+                    CycleTime = cycleTime,
+                    CalculatedCycleTime = cycleTime
                 };
 
                 context.MachineProductionDatas.Add(newLog);
@@ -552,6 +609,44 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
 
                 string logMessage = $"{DateTime.Now}\t {text}";
                 logWriter.WriteLine(logMessage);
+            }
+        }
+
+        private void UpdateUI(MachineInfo machine)
+        {
+            if (textBox1.InvokeRequired || textBox2.InvokeRequired)
+            {
+                textBox1.Invoke((MethodInvoker)delegate
+                {
+                    textBox1.Text = machine.IPAddress.ToString();
+                });
+
+                textBox2.Invoke((MethodInvoker)delegate
+                {
+                    textBox2.Text = machine.MachineName.ToString();
+                });
+            }
+            else
+            {
+                textBox1.Text = machine.IPAddress.ToString();
+                textBox2.Text = machine.MachineName.ToString();
+            }
+        }
+
+        public double GetAverageCycleTimeForToday(int? machineId)
+        {
+            DateTime today = DateTime.Today;
+            DateTime tomorrow = today.AddDays(1);
+
+            using (var context = new ernamas_dijitalEntities())
+            {
+                var averageCycleTime = context.MachineProductionDatas
+                    .Where(x => x.MachineID == machineId
+                                && x.ProductionDate >= today
+                                && x.ProductionDate < tomorrow)
+                    .Average(x => (double?)x.CycleTime) ?? 0; // Boş sonuçlar için 0 döner
+
+                return averageCycleTime;
             }
         }
     }
@@ -580,6 +675,7 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
         public int NGProductCount { get; set; }
         public float OKRatio { get; set; }
         public float CycleTime { get; set; }
+        public float SecondCycleTime { get; set; }
 
         public bool Auto { get; set; }
         public bool Run { get; set; }

@@ -29,6 +29,7 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
         public Nullable<double> ExpectedCycleTime { get; set; }
         public Nullable<int> PortAdress { get; set; }
         public Nullable<int> State { get; set; }
+        public Nullable<int> ProductionSides { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<MachineChangeLogs> MachineChangeLogs { get; set; }

@@ -19,5 +19,6 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
         public int ProductionCount { get; set; }
         public double CycleTime { get; set; }
         public int MachineID { get; set; }
+        public Nullable<double> CalculatedCycleTime { get; set; }
     }
 }
