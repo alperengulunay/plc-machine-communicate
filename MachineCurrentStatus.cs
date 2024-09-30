@@ -28,6 +28,7 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
         public Nullable<int> MachineQueueNumber { get; set; }
         public Nullable<int> CurrentDailyOKProduction { get; set; }
         public Nullable<int> CurrentDailyNGProduction { get; set; }
+        public Nullable<double> CalculatedCycleTime { get; set; }
     
         public virtual MachineStatusTypes MachineStatusTypes { get; set; }
         public virtual Machines Machines { get; set; }

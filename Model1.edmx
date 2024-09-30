@@ -33,6 +33,7 @@
           <Property Name="CurrentDailyProduction" Type="int" />
           <Property Name="CurrentDailyOKProduction" Type="int" />
           <Property Name="CurrentDailyNGProduction" Type="int" />
+          <Property Name="CalculatedCycleTime" Type="float" />
         </EntityType>
         <EntityType Name="MachineDowntimeReports">
           <Key>
@@ -207,6 +208,7 @@
           <Property Name="CurrentDailyOKProduction" Type="Int32" />
           <Property Name="CurrentDailyNGProduction" Type="Int32" />
           <NavigationProperty Name="Machines" Relationship="ernamas_dijitalModel.FK__TestMachi__Machi__174E50DA" FromRole="MachineCurrentStatus" ToRole="Machines" />
+          <Property Name="CalculatedCycleTime" Type="Double" />
         </EntityType>
         <EntityType Name="MachineFaultTypes">
           <Key>
@@ -369,6 +371,7 @@
           <EntitySetMapping Name="MachineCurrentStatus">
             <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineCurrentStatus">
               <MappingFragment StoreEntitySet="MachineCurrentStatus">
+                <ScalarProperty Name="CalculatedCycleTime" ColumnName="CalculatedCycleTime" />
                 <ScalarProperty Name="CurrentDailyNGProduction" ColumnName="CurrentDailyNGProduction" />
                 <ScalarProperty Name="CurrentDailyOKProduction" ColumnName="CurrentDailyOKProduction" />
                 <ScalarProperty Name="MachineQueueNumber" ColumnName="MachineQueueNumber" />

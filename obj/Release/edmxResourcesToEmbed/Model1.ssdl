@@ -28,6 +28,7 @@
     <Property Name="CurrentDailyProduction" Type="int" />
     <Property Name="CurrentDailyOKProduction" Type="int" />
     <Property Name="CurrentDailyNGProduction" Type="int" />
+    <Property Name="CalculatedCycleTime" Type="float" />
   </EntityType>
   <EntityType Name="MachineDowntimeReports">
     <Key>
@@ -85,6 +86,7 @@
     <Property Name="ProductionDate" Type="datetime" Nullable="false" />
     <Property Name="ProductionCount" Type="int" Nullable="false" />
     <Property Name="CycleTime" Type="float" Nullable="false" />
+    <Property Name="CalculatedCycleTime" Type="float" />
   </EntityType>
   <EntityType Name="Machines">
     <Key>
@@ -98,6 +100,7 @@
     <Property Name="ExpectedCycleTime" Type="float" />
     <Property Name="PortAdress" Type="int" />
     <Property Name="State" Type="int" />
+    <Property Name="ProductionSides" Type="int" />
   </EntityType>
   <EntityType Name="MachineStatusTypes">
     <Key>

@@ -15,6 +15,7 @@
     <EntitySetMapping Name="MachineCurrentStatus">
       <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineCurrentStatus">
         <MappingFragment StoreEntitySet="MachineCurrentStatus">
+          <ScalarProperty Name="CalculatedCycleTime" ColumnName="CalculatedCycleTime" />
           <ScalarProperty Name="CurrentDailyNGProduction" ColumnName="CurrentDailyNGProduction" />
           <ScalarProperty Name="CurrentDailyOKProduction" ColumnName="CurrentDailyOKProduction" />
           <ScalarProperty Name="MachineQueueNumber" ColumnName="MachineQueueNumber" />
@@ -64,6 +65,7 @@
     <EntitySetMapping Name="MachineProductionDatas">
       <EntityTypeMapping TypeName="ernamas_dijitalModel.MachineProductionDatas">
         <MappingFragment StoreEntitySet="MachineProductionDatas">
+          <ScalarProperty Name="CalculatedCycleTime" ColumnName="CalculatedCycleTime" />
           <ScalarProperty Name="MachineID" ColumnName="MachineID" />
           <ScalarProperty Name="CycleTime" ColumnName="CycleTime" />
           <ScalarProperty Name="ProductionCount" ColumnName="ProductionCount" />
@@ -105,6 +107,7 @@
     <EntitySetMapping Name="Machines">
       <EntityTypeMapping TypeName="ernamas_dijitalModel.Machines">
         <MappingFragment StoreEntitySet="Machines">
+          <ScalarProperty Name="ProductionSides" ColumnName="ProductionSides" />
           <ScalarProperty Name="State" ColumnName="State" />
           <ScalarProperty Name="PortAdress" ColumnName="PortAdress" />
           <ScalarProperty Name="ExpectedCycleTime" ColumnName="ExpectedCycleTime" />
