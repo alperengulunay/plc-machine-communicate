@@ -11,6 +11,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 
 namespace ERN028_MakinaVeriTopalamaFormsApp
@@ -299,51 +300,55 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
                                 // Eğer PreviousValue 2 ise ve ChangeValue 2 değilse, bu kaydı bulduk
                                 if (previousLog.ChangeValue != 2 && previousLog.PreviousValue == 2)
                                 {
-                                    // Eğer previousLog.Timestamp ve newMachineChangeLog.Timestamp bilgisi belirli saat aralığındaysa bunu kaydetme
-                                    TimeSpan previousLogTime = previousLog.Timestamp.TimeOfDay;
-                                    TimeSpan newLogTime = newMachineChangeLog.Timestamp.TimeOfDay;
+                                    var timeDifference = newMachineChangeLog.Timestamp - previousLog.Timestamp;
 
-                                    // Kaydedilmeyecek aralıklar:
-                                    TimeSpan range1Start = new TimeSpan(10, 0, 0); // 10:00
-                                    TimeSpan range1End = new TimeSpan(10, 15, 0); // 10:15
-
-                                    TimeSpan range2Start = new TimeSpan(12, 0, 0); // 12:00
-                                    TimeSpan range2End = new TimeSpan(12, 50, 0); // 12:50
-
-                                    TimeSpan range3Start = new TimeSpan(15, 45, 0); // 15:45
-                                    TimeSpan range3End = new TimeSpan(16, 0, 0); // 16:00
-
-                                    TimeSpan eveningEnd = new TimeSpan(18, 0, 0);  // 18:00
-
-                                    // Duruş süresini hesapla
-                                    TimeSpan downtimeDuration = newLogTime - previousLogTime;
-
-                                    // Zaman aralıklarının üzerine çok az taşma durumlarını kontrol et
-                                    bool overlapsWithRestrictedRange =
-                                        ((previousLogTime < range1End) && (newLogTime > range1Start) && (downtimeDuration < (range1End - range1Start + TimeSpan.FromMinutes(5)))) ||
-                                        ((previousLogTime < range2End) && (newLogTime > range2Start) && (downtimeDuration < (range2End - range2Start + TimeSpan.FromMinutes(5)))) ||
-                                        ((previousLogTime < range3End) && (newLogTime > range3Start) && (downtimeDuration < (range3End - range3Start + TimeSpan.FromMinutes(5)))) ||
-                                        // Akşam 18:00'den sonra herhangi bir zaman içeriyorsa
-                                        (previousLogTime >= eveningEnd || newLogTime >= eveningEnd);
-
-                                    if (!overlapsWithRestrictedRange)
+                                    if (timeDifference.TotalSeconds >= 30)
                                     {
-                                        var newMachineDowntimeReport = new MachineDowntimeReports
+                                        // Eğer previousLog.Timestamp ve newMachineChangeLog.Timestamp bilgisi belirli saat aralığındaysa bunu kaydetme
+                                        TimeSpan previousLogTime = previousLog.Timestamp.TimeOfDay;
+                                        TimeSpan newLogTime = newMachineChangeLog.Timestamp.TimeOfDay;
+
+                                        // Kaydedilmeyecek aralıklar:
+                                        TimeSpan range1Start = new TimeSpan(10, 0, 0); // 10:00
+                                        TimeSpan range1End = new TimeSpan(10, 15, 0); // 10:15
+
+                                        TimeSpan range2Start = new TimeSpan(12, 0, 0); // 12:00
+                                        TimeSpan range2End = new TimeSpan(12, 50, 0); // 12:50
+
+                                        TimeSpan range3Start = new TimeSpan(15, 45, 0); // 15:45
+                                        TimeSpan range3End = new TimeSpan(16, 0, 0); // 16:00
+
+                                        TimeSpan eveningEnd = new TimeSpan(18, 0, 0);  // 18:00
+
+                                        // Duruş süresini hesapla
+                                        TimeSpan downtimeDuration = newLogTime - previousLogTime;
+
+                                        // Zaman aralıklarının üzerine çok az taşma durumlarını kontrol et
+                                        bool overlapsWithRestrictedRange =
+                                            ((previousLogTime < range1End) && (newLogTime > range1Start) && (downtimeDuration < (range1End - range1Start + TimeSpan.FromMinutes(5)))) ||
+                                            ((previousLogTime < range2End) && (newLogTime > range2Start) && (downtimeDuration < (range2End - range2Start + TimeSpan.FromMinutes(5)))) ||
+                                            ((previousLogTime < range3End) && (newLogTime > range3Start) && (downtimeDuration < (range3End - range3Start + TimeSpan.FromMinutes(5)))) ||
+                                            // Akşam 18:00'den sonra herhangi bir zaman içeriyorsa
+                                            (previousLogTime >= eveningEnd || newLogTime >= eveningEnd);
+
+                                        if (!overlapsWithRestrictedRange)
                                         {
-                                            DownTime = previousLog.Timestamp,
-                                            DownEndTime = newMachineChangeLog.Timestamp,
-                                            MachineID = newMachineChangeLog.MachineID,
-                                            // Varsayılan ya da boş bırakılan diğer alanlar
-                                            MachineFaultCategoriesID = 0,
-                                            AdditionalFaultInfo = string.Empty,
-                                            MachineSolutionInfoCategoriesID = 0,
-                                            AdditionalSolutionInfo = string.Empty,
-                                            employeeId = 0
-                                        };
+                                            var newMachineDowntimeReport = new MachineDowntimeReports
+                                            {
+                                                DownTime = previousLog.Timestamp,
+                                                DownEndTime = newMachineChangeLog.Timestamp,
+                                                MachineID = newMachineChangeLog.MachineID,
+                                                // Varsayılan ya da boş bırakılan diğer alanlar
+                                                MachineFaultCategoriesID = 0,
+                                                AdditionalFaultInfo = string.Empty,
+                                                MachineSolutionInfoCategoriesID = 0,
+                                                AdditionalSolutionInfo = string.Empty,
+                                                employeeId = 0
+                                            };
 
-                                        context.MachineDowntimeReports.Add(newMachineDowntimeReport);
+                                            context.MachineDowntimeReports.Add(newMachineDowntimeReport);
+                                        }
                                     }
-
                                     break;
                                 }
                             }
@@ -496,6 +501,8 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
             if (now.Hour == 23 && now.Minute >= 48 && now.Minute <= 59)
             {
                 MachineCurrentStatusReset(); // Bu zaman aralığında çalışacak fonksiyon
+                MachineDailyCycleTimeDataZip(); // O günün cycle time verilerini alıp günlük özette saklayan ardından o günün verilerini silen fonksiyon
+                DropMachineProductionDatas(); // Tüm geçmiş cycle time verilerini silen fonksiyon
             }
         }
 
@@ -522,6 +529,75 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
             }
         }
 
+        private void MachineDailyCycleTimeDataZip() 
+        {
+            using (var context = new ernamas_dijitalEntities())
+            {
+                DateTime today = DateTime.Today;
+
+                // Sorguyu çalıştır ve bellek içine al
+                var productionDataList = context.MachineProductionDatas
+                    .Where(p => p.ProductionDate >= today)
+                    .GroupBy(p => p.MachineID)
+                    .Select(g => new
+                    {
+                        MachineID = g.Key,
+                        ProductionData = g.Select(p => new
+                        {
+                            p.ProductionDate,
+                            p.CalculatedCycleTime
+                        }).ToList()
+                    }).ToList();
+
+                // Bellekteki verilerle formatlama işlemi yap
+                var formattedDataList = productionDataList.Select(machineData => new
+                {
+                    MachineID = machineData.MachineID,
+                    ProductionDates = machineData.ProductionData.Select(p => p.ProductionDate.ToString("HH:mm:ss.fff")).ToList(),
+                    CalculatedCycleTimes = machineData.ProductionData.Select(p => Math.Round(p.CalculatedCycleTime ?? 0.0, 1)).ToList()
+                }).ToList();
+
+                foreach (var machineData in formattedDataList)
+                {
+                    // İstenen formatta JSON verisini oluştur
+                    var formattedData = new
+                    {
+                        ProductionDates = machineData.ProductionDates,
+                        CalculatedCycleTime = machineData.CalculatedCycleTimes
+                    };
+
+                    string jsonCycleTimeFormula = JsonConvert.SerializeObject(formattedData);
+
+                    // İlgili MachineID'ye sahip bugünkü MachineHistoryStatus kaydını bul
+                    var historyStatus = context.MachineHistoryStatus
+                        .FirstOrDefault(h => h.MachineID == machineData.MachineID && h.DateDay == today);
+
+                    if (historyStatus != null)
+                    {
+                        // CycleTimeFormula sütununu JSON verisi ile güncelle
+                        historyStatus.CycleTimeFormula = jsonCycleTimeFormula;
+                    }
+                }
+
+                // Veritabanındaki değişiklikleri kaydet
+                context.SaveChanges();
+            }
+        }
+
+        private void DropMachineProductionDatas() 
+        {
+            using (var context = new ernamas_dijitalEntities())
+            {
+                // MachineProductionDatas tablosundaki tüm kayıtları alın
+                var allProductionData = context.MachineProductionDatas.ToList();
+
+                // Tüm kayıtları sil
+                context.MachineProductionDatas.RemoveRange(allProductionData);
+
+                // Değişiklikleri veritabanına kaydedin
+                context.SaveChanges();
+            }
+        }
 
         private void PerformDailySummary()
         {
@@ -570,7 +646,7 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
                                 MachineID = currentStatus.MachineID,
                                 FaultInfo = "",
                                 MachineFaultTypeID = 4,
-                                LossQuantity = currentStatus.NGProductCount,
+                                LossQuantity = currentStatus.CurrentDailyNGProduction,
                                 LossDate = today,
                                 employeeId = 0,
                             };
@@ -715,7 +791,7 @@ namespace ERN028_MakinaVeriTopalamaFormsApp
                     .Where(x => x.MachineID == machineId
                                 && x.ProductionDate >= today
                                 && x.ProductionDate < tomorrow)
-                    .Average(x => (double?)x.CycleTime) ?? 0; // Boş sonuçlar için 0 döner
+                    .Average(x => (double?)x.CalculatedCycleTime) ?? 0; // Boş sonuçlar için 0 döner
 
                 return averageCycleTime;
             }
